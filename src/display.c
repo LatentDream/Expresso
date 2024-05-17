@@ -104,14 +104,33 @@ void draw_line_dda(vec2_t start, vec2_t end, uint32_t color) {
     }
 }
 
-void draw_line_bresenham(vec2_t start, vec2_t end) {
-    fprintf(stderr, "[Error] draw_line_bresenham is unimplemented");
-    exit(1);
+void draw_line_bresenham(int x0, int y0, int x1, int y1, uint32_t color) {
+    int dx = abs(x1 - x0);
+    int sx = x0 < x1 ? 1 : -1;
+    int dy = -abs(y1 - y0);
+    int sy = y0 < y1 ? 1 : -1;
+    int error = dx + dy;
+
+    while (true) {
+        draw_pixel(x0, y0, color);
+        if (x0 == x1 && y0 == y1) break;
+        int e2 = 2*error;
+        if (e2 > dy) {
+            if (x0 == x1) break;
+            error += dy;
+            x0 += sx;
+        }
+        if (e2 <= dx) {
+            if (y0 == y1) break;
+            error += dx;
+            y0 += sy;
+        }
+    }
 }
 
 
 void draw_line(vec2_t start, vec2_t end, uint32_t color) {
-    draw_line_dda(start, end, color);   
+    draw_line_bresenham(start.x, start.y, end.x, end.y, color);   
 }
 
 // Buffer helper functions ----------------------------------------------------
