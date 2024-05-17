@@ -19,6 +19,7 @@ extern SDL_Renderer* renderer;
 bool initialize_window(void);
 void draw_grid(void);
 void draw_ref(void);
+void draw_pixel(int x, int y, uint32_t color);
 void draw_rec(int x, int y, int w, int h, uint32_t color);
 void clear_color_buffer(uint32_t color);
 void render_color_buffer(void);
