@@ -12,8 +12,8 @@ bool initialize_window(void) {
     // Get display info
     SDL_DisplayMode display_mode;
     SDL_GetCurrentDisplayMode(0, &display_mode);
-    window_width = display_mode.w;
-    window_height = display_mode.h;
+    window_width = display_mode.w / 2;
+    window_height = display_mode.h / 1.5;
 
     window = SDL_CreateWindow(
         NULL,
@@ -34,7 +34,7 @@ bool initialize_window(void) {
         return false;
     }
 
-    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
     return true;
 }

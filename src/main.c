@@ -1,3 +1,4 @@
+#include <SDL2/SDL_timer.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
@@ -17,6 +18,7 @@ SDL_Renderer* renderer = NULL;
 
 // Event Loop
 bool is_running = false;
+int previous_frame_time = 0;
 
 // other
 #define N_POINTS (9 * 9 * 9)
@@ -24,6 +26,7 @@ bool is_running = false;
 vec3_t cube_points[N_POINTS];
 vec2_t projected_points[N_POINTS];
 vec3_t camera_position = { .x = 0, .y = 0, .z = -5 };
+vec3_t cube_rotation = { .x = 0, .y = 0, .z = 0 };
 
 void setup(void) {
     // Allocate the required memory in bytes to hold the color buffer
@@ -50,8 +53,6 @@ void setup(void) {
     }
 }
 
-
-
 void process_input(void) {
     SDL_Event event;
     SDL_PollEvent(&event);
@@ -77,23 +78,44 @@ vec2_t project(vec3_t point) {
 }
 
 void update(void) {
+    // Limit the tick to the FRAME_TARGET_TIME
+    int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
+    while (!SDL_TICKS_PASSED(
+        SDL_GetTicks(),
+        previous_frame_time + FRAME_TARGET_TIME))
+    {
+        SDL_Delay(time_to_wait);
+    }
+    previous_frame_time = SDL_GetTicks();
+
+    // Our movement
+    cube_rotation.y += 0.01;
+    cube_rotation.z += 0.03;
+
+    // Transform & Project
     for (int i = 0; i < N_POINTS; i++) {
         vec3_t point = cube_points[i];
-        // Move camera
-        point.z -= camera_position.z;
-        // project the curr. point
-        projected_points[i] = project(point);
+
+        vec3_t transformed_point = vec3_rotate_y(point, cube_rotation.y);
+        transformed_point = vec3_rotate_z(transformed_point, cube_rotation.z);
+
+        // Translate the point away from the camera
+        transformed_point.z -= camera_position.z;
+
+        // Project the curr. point
+        projected_points[i] = project(transformed_point);
     }
+
 }
 
 void render(void) {
-    // Color Pixel: 0x AA RR GG BB |  R   G  B   A
+    // Clear buffer
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-
     clear_color_buffer(0xFF000000);
-
     draw_ref();
+
+    // Draw projected points
     for (int i = 0; i < N_POINTS; i++) {
         vec2_t projected_point = projected_points[i];
         draw_rec(
@@ -101,12 +123,12 @@ void render(void) {
             projected_point.y + window_height / 2,
             4,
             4,
-            0xFFFFFF44
+            0xFFF55F44
         );
     }
-    render_color_buffer();
-    // SDL_RenderClear(renderer);
 
+    // Render
+    render_color_buffer();
     SDL_RenderPresent(renderer);
 }
 

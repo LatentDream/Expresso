@@ -1,11 +1,12 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <SDL2/SDL_video.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <SDL2/SDL.h>
 #include <stdbool.h>
+#include <SDL2/SDL.h>
+
+#define FPS 30
+#define FRAME_TARGET_TIME (1000.0 / FPS)
 
 // Varaible ////////////////////////////////////////////////
 extern uint32_t* color_buffer;
