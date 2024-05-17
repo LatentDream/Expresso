@@ -100,3 +100,12 @@ face_t cube_faces[12] = {
     { .a = 6, .b = 1, .c = 4},
 };
 ```
+
+**Lines**
+Line drawing algorithms (Rasterize):
+- **Naive algorithm**
+- **Digital Differential Analyzer** (DDA graphics algorithm) — Similar to the naive line-drawing algorithm, with minor variations.
+    - Warning: a bit slower because of the `/` operation
+- **Bresenham's line algorithm** - Optimized to use only additions (i.e. no division Multiplications); it also avoids floating-point computations.
+- **The Gupta-Sproull algorithm** - Based on Bresenham's line algorithm but adds antialiasing.
+ 

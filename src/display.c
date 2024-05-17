@@ -1,7 +1,11 @@
 #include "display.h"
+#include "vector.h"
+#include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 bool initialize_window(void) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -39,6 +43,8 @@ bool initialize_window(void) {
     return true;
 }
 
+// Draw grid ------------------------------------------------------------------
+
 void draw_grid(void) {
     for (int y = 0; y < window_height; y++) {
         for (int x = 0; x < window_width; x++) {
@@ -59,11 +65,15 @@ void draw_ref(void) {
     }
 }
 
+// Draw pixel -----------------------------------------------------------------
+
 void draw_pixel(int x, int y, uint32_t color) {
     if (x < window_width && x >= 0 && y < window_height && y >= 0) {
         color_buffer[(window_width * y) + x] = color;
     }
 }
+
+// Draw rect ------------------------------------------------------------------
 
 void draw_rec(int x, int y, int w, int h, uint32_t color) {
     for (int j = y; j < window_height && j < y + h; j++) {
@@ -72,6 +82,39 @@ void draw_rec(int x, int y, int w, int h, uint32_t color) {
         }
     }
 }
+
+// Draw line ------------------------------------------------------------------
+
+void draw_line_dda(vec2_t start, vec2_t end, uint32_t color) {
+    int delta_x = (end.x - start.x);
+    int delta_y = (end.y - start.y);
+
+    int side_len = abs(delta_x) >= abs(delta_y) ? abs(delta_x) : abs(delta_y);
+
+    float x_inc = delta_x / (float)side_len;
+    float y_inc = delta_y / (float)side_len;
+
+    float current_x = start.x;
+    float current_y = start.y;
+
+    for (int i = 0; i < side_len; i++) {
+        draw_pixel(round(current_x), round(current_y), color);
+        current_x += x_inc;
+        current_y += y_inc;
+    }
+}
+
+void draw_line_bresenham(vec2_t start, vec2_t end) {
+    fprintf(stderr, "[Error] draw_line_bresenham is unimplemented");
+    exit(1);
+}
+
+
+void draw_line(vec2_t start, vec2_t end, uint32_t color) {
+    draw_line_dda(start, end, color);   
+}
+
+// Buffer helper functions ----------------------------------------------------
 
 void render_color_buffer(void) {
     SDL_UpdateTexture(
