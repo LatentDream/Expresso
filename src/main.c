@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include "display.h"
 #include "vector.h"
+#include "mesh.h"
+#include "triangle.h"
 
 // Window Setting
 uint32_t* color_buffer            = NULL;
@@ -20,13 +22,11 @@ SDL_Renderer* renderer = NULL;
 bool is_running = false;
 int previous_frame_time = 0;
 
-// other
-#define N_POINTS (9 * 9 * 9)
+// other -- Meshes
 #define fov_factor 485
-vec3_t cube_points[N_POINTS];
-vec2_t projected_points[N_POINTS];
 vec3_t camera_position = { .x = 0, .y = 0, .z = -5 };
 vec3_t cube_rotation = { .x = 0, .y = 0, .z = 0 };
+triangle_t triangle_to_render[N_MESH_FACES];
 
 void setup(void) {
     // Allocate the required memory in bytes to hold the color buffer
@@ -41,16 +41,6 @@ void setup(void) {
         window_height
     );
 
-    int point_count = 0;
-
-    for (float x = -1; x <= 1; x += 0.25) {
-        for (float y = -1; y <= 1; y += 0.25) {
-            for (float z = -1; z <= 1; z += 0.25) {
-                vec3_t new_point = { x, y, z};
-                cube_points[point_count++] = new_point;
-            }
-        }
-    }
 }
 
 void process_input(void) {
@@ -89,23 +79,45 @@ void update(void) {
     previous_frame_time = SDL_GetTicks();
 
     // Our movement
-    cube_rotation.y += 0.01;
+    cube_rotation.x += 0.01;
+    cube_rotation.y += 0.03;
     cube_rotation.z += 0.03;
 
-    // Transform & Project
-    for (int i = 0; i < N_POINTS; i++) {
-        vec3_t point = cube_points[i];
+    // Loop over the triangle faces
+    for (int i = 0; i < N_MESH_FACES; i++) {
+        face_t mesh_face = mesh_faces[i];
 
-        vec3_t transformed_point = vec3_rotate_y(point, cube_rotation.y);
-        transformed_point = vec3_rotate_z(transformed_point, cube_rotation.z);
+        vec3_t face_vertices[mesh_face.a];
+        face_vertices[0] = mesh_vertices[mesh_face.a - 1];
+        face_vertices[1] = mesh_vertices[mesh_face.b - 1];
+        face_vertices[2] = mesh_vertices[mesh_face.c - 1];
 
-        // Translate the point away from the camera
-        transformed_point.z -= camera_position.z;
+        // Loop over the vertices and apply the transformation and save it for the renderer
+        triangle_t projected_triangle;
+        for (int j = 0; j < 3; j++) {
+            vec3_t transformed_vertex = face_vertices[j];
 
-        // Project the curr. point
-        projected_points[i] = project(transformed_point);
+            // Accumulate the postion of transform xyz
+            transformed_vertex = vec3_rotate_x(transformed_vertex, cube_rotation.x);
+            transformed_vertex = vec3_rotate_y(transformed_vertex, cube_rotation.y);
+            transformed_vertex = vec3_rotate_z(transformed_vertex, cube_rotation.z);
+
+            // Translate away from the camera
+            transformed_vertex.z -= camera_position.z;
+
+            // Project the point in 2D
+            vec2_t projected_point = project(transformed_vertex);
+
+            // Scale and place in the middle
+            projected_point.x += (window_width/2);
+            projected_point.y += (window_height/2);
+            
+            projected_triangle.points[j] = projected_point;
+
+        }
+        // Save the projected tri. for the renderer
+        triangle_to_render[i] = projected_triangle;
     }
-
 }
 
 void render(void) {
@@ -115,16 +127,13 @@ void render(void) {
     clear_color_buffer(0xFF000000);
     draw_ref();
 
-    // Draw projected points
-    for (int i = 0; i < N_POINTS; i++) {
-        vec2_t projected_point = projected_points[i];
-        draw_rec(
-            projected_point.x + window_width / 2,
-            projected_point.y + window_height / 2,
-            4,
-            4,
-            0xFFF55F44
-        );
+    // Render all the triangle that need to be renderer
+    uint32_t color = 0xFF565422;
+    for (int i = 0; i < N_MESH_FACES; i++) {
+        triangle_t triangle = triangle_to_render[i];
+        draw_rec(triangle.points[0].x, triangle.points[0].y, 3, 3, color);
+        draw_rec(triangle.points[1].x, triangle.points[1].y, 3, 3, color);
+        draw_rec(triangle.points[2].x, triangle.points[2].y, 3, 3, color);
     }
 
     // Render
