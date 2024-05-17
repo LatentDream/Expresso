@@ -131,9 +131,7 @@ void render(void) {
     uint32_t color = 0xFF565422;
     for (int i = 0; i < N_MESH_FACES; i++) {
         triangle_t triangle = triangle_to_render[i];
-        for (int v = 0; v < N_MESH_FACES; v++) {
-            draw_line(triangle.points[(v)%3], triangle.points[(v+1)%3], color);
-        }
+        draw_triangle(triangle, color);
     }
 
     // Render

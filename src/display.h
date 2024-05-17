@@ -1,6 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include "triangle.h"
 #include "vector.h"
 #include <stdint.h>
 #include <stdbool.h>
@@ -24,6 +25,7 @@ void draw_ref(void);
 void draw_pixel(int x, int y, uint32_t color);
 void draw_rec(int x, int y, int w, int h, uint32_t color);
 void draw_line(vec2_t start, vec2_t end, uint32_t color);
+void draw_triangle(triangle_t triangle, uint32_t color);
 void clear_color_buffer(uint32_t color);
 void render_color_buffer(void);
 void destroy_window(void);

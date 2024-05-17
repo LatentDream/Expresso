@@ -1,4 +1,5 @@
 #include "display.h"
+#include "triangle.h"
 #include "vector.h"
 #include <math.h>
 #include <stdint.h>
@@ -131,6 +132,12 @@ void draw_line_bresenham(int x0, int y0, int x1, int y1, uint32_t color) {
 
 void draw_line(vec2_t start, vec2_t end, uint32_t color) {
     draw_line_bresenham(start.x, start.y, end.x, end.y, color);   
+}
+
+void draw_triangle(triangle_t triangle, uint32_t color) {
+    for (int v = 0; v < 3; v++) {
+        draw_line(triangle.points[(v)%3], triangle.points[(v+1)%3], color);
+    }
 }
 
 // Buffer helper functions ----------------------------------------------------
