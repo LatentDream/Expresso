@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "array.h"
 #include "vector.h"
+#include <stdio.h>
 
 mesh_t mesh = { 0 };
 
@@ -36,11 +37,36 @@ face_t cube_faces[N_CUBE_FACES] = {
     { .a = 6, .b = 1, .c = 4 }
 };
 
-void load_cube_mesh_data(void) {
+void load_cube_example_mesh(void) {
     for (int i = 0; i < N_CUBE_VERTICES; i++) {
         array_push(mesh.vertices, cube_vertices[i])
     }
     for (int i = 0; i < N_CUBE_FACES; i++) {
         array_push(mesh.faces, cube_faces[i])
     }
+}
+
+void load_mesh_from_obj(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        printf("Failed to open file: %s\n", filename);
+        return;
+    }
+    char line[128];
+    while (fgets(line, sizeof(line), file)) {
+        vec3_t vertex;
+        if (line[0] == 'v') {
+            sscanf(line, "v %f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+            array_push(mesh.vertices, vertex);
+        } else if (line[0] == 'f') {
+            face_t face;
+            sscanf(line, "f %d %d %d\n", &face.a, &face.b, &face.c);
+            array_push(mesh.faces, face);
+        }
+    }
+    fclose(file);
+
+}
+
+void load_obj_file_data(char* filename) {
 }

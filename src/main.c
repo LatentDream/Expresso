@@ -44,8 +44,8 @@ void setup(void) {
         window_height
     );
 
-    load_cube_mesh_data();
-
+    // load_cube_example_mesh();
+    load_mesh_from_obj("./assets/teapot.obj");
 }
 
 void free_ressources(void) {
@@ -98,8 +98,8 @@ void update(void) {
 
     // Our movement
     mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.03;
-    mesh.rotation.z += 0.03;
+    // mesh.rotation.y += 0.03;
+    // mesh.rotation.z += 0.03;
 
     // Loop over the triangle faces
     for (int i = 0; i < array_length(mesh.faces); i++) {

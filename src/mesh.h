@@ -21,6 +21,7 @@ typedef struct {
 
 extern mesh_t mesh;
 
-void load_cube_mesh_data(void);
+void load_cube_example_mesh(void);
+void load_mesh_from_obj(const char* filename);
 
 #endif // !MESH_H
