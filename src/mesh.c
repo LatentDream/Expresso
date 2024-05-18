@@ -1,7 +1,10 @@
 #include "mesh.h"
+#include "array.h"
 #include "vector.h"
 
-vec3_t mesh_vertices[N_MESH_VERTICES] = {
+mesh_t mesh = { 0 };
+
+vec3_t cube_vertices[N_CUBE_VERTICES] = {
     { .x = -1, .y = -1, .z = -1},   // 1
     { .x = -1, .y =  1, .z = -1},   // 2
     { .x =  1, .y =  1, .z = -1},   // 3
@@ -12,7 +15,7 @@ vec3_t mesh_vertices[N_MESH_VERTICES] = {
     { .x = -1, .y = -1, .z =  1},   // 8
 };
 
-face_t mesh_faces[N_MESH_FACES] = {
+face_t cube_faces[N_CUBE_FACES] = {
     // front
     { .a = 1, .b = 2, .c = 3 },
     { .a = 1, .b = 3, .c = 4 },
@@ -33,3 +36,11 @@ face_t mesh_faces[N_MESH_FACES] = {
     { .a = 6, .b = 1, .c = 4 }
 };
 
+void load_cube_mesh_data(void) {
+    for (int i = 0; i < N_CUBE_VERTICES; i++) {
+        array_push(mesh.vertices, cube_vertices[i])
+    }
+    for (int i = 0; i < N_CUBE_FACES; i++) {
+        array_push(mesh.faces, cube_faces[i])
+    }
+}
