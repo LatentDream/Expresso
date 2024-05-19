@@ -45,8 +45,9 @@ void setup(void) {
     );
 
     // load_cube_example_mesh();
-    // load_mesh_from_obj_simple("./assets/teapot.obj");
-    load_mesh_from_obj_complex("./assets/f22.obj");
+    load_mesh_from_obj_simple("./assets/teapot.obj");
+    // load_mesh_from_obj_complex("./assets/f22.obj");
+
 }
 
 void free_ressources(void) {
@@ -104,36 +105,59 @@ void update(void) {
 
     // Loop over the triangle faces
     for (int i = 0; i < array_length(mesh.faces); i++) {
-        face_t faces = mesh.faces[i];
+        face_t mesh_face = mesh.faces[i];
 
         vec3_t face_vertices[3];
-        face_vertices[0] = mesh.vertices[faces.a - 1];
-        face_vertices[1] = mesh.vertices[faces.b - 1];
-        face_vertices[2] = mesh.vertices[faces.c - 1];
+        face_vertices[0] = mesh.vertices[mesh_face.a - 1];
+        face_vertices[1] = mesh.vertices[mesh_face.b - 1];
+        face_vertices[2] = mesh.vertices[mesh_face.c - 1];
+
+        triangle_t projected_triangle;
+        vec3_t transformed_vertices[3];
 
         // Loop over the vertices and apply the transformation and save it for the renderer
-        triangle_t projected_triangle;
         for (int j = 0; j < 3; j++) {
             vec3_t transformed_vertex = face_vertices[j];
-
             // Accumulate the postion of transform xyz
             transformed_vertex = vec3_rotate_x(transformed_vertex, mesh.rotation.x);
             transformed_vertex = vec3_rotate_y(transformed_vertex, mesh.rotation.y);
             transformed_vertex = vec3_rotate_z(transformed_vertex, mesh.rotation.z);
 
             // Translate away from the camera
-            transformed_vertex.z -= camera_position.z;
+            transformed_vertex.z += 5;
 
+            transformed_vertices[j] = transformed_vertex;
+        }
+
+        // Back culling the faces that are not visible/*     A     */
+        vec3_t vector_a = transformed_vertices[0];    /*    / \    */
+        vec3_t vector_b = transformed_vertices[1];    /*   /   \   */
+        vec3_t vector_c = transformed_vertices[2];    /*  C --- B  */
+        vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+        vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+
+        // Compute the face normal (using cross product to find perpendicular);
+        vec3_t normal = vec3_cross(vector_ab, vector_ac);
+        // Vector between the a point in the triangle and the camera origin
+        vec3_t camera_ray = vec3_sub(camera_position, vector_a);
+        // Verify if the normal and camera are align
+        float alignment = vec3_doc_product(camera_ray, normal);
+        // Prune the negative triangle
+        if (alignment < 0) {
+            continue;
+        }
+
+        // Project the point in 2D
+        for (int j = 0; j < 3; j++) {
+            vec3_t transformed_vertex = transformed_vertices[j];
             // Project the point in 2D
             vec2_t projected_point = project(transformed_vertex);
-
             // Scale and place in the middle
             projected_point.x += window_width / 2;
             projected_point.y += window_height / 2;
-            
             projected_triangle.points[j] = projected_point;
-
         }
+
         // Save the projected tri. for the renderer
         array_push(triangle_to_render, projected_triangle);
     }
