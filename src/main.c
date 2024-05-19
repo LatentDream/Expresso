@@ -134,10 +134,14 @@ void update(void) {
         vec3_t vector_b = transformed_vertices[1];    /*   /   \   */
         vec3_t vector_c = transformed_vertices[2];    /*  C --- B  */
         vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+        vec3_normalize(&vector_ab);
         vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+        vec3_normalize(&vector_ac);
 
         // Compute the face normal (using cross product to find perpendicular);
         vec3_t normal = vec3_cross(vector_ab, vector_ac);
+        // Normalize the vec
+        vec3_normalize(&normal);
         // Vector between the a point in the triangle and the camera origin
         vec3_t camera_ray = vec3_sub(camera_position, vector_a);
         // Verify if the normal and camera are align

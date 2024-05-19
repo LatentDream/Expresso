@@ -22,6 +22,11 @@ float vec2_doc_product(vec2_t a, vec2_t b) {
     return a.x * b.x + a.y * b.y;
 }
 
+void vec2_normalize(vec2_t* a) {
+    float length = vec2_length(*a);
+    a->x /= length;
+    a->y /= length;
+}
 
 // 3D Vector Functions ======================================
 float vec3_length(vec3_t v) {
@@ -78,4 +83,11 @@ vec3_t vec3_cross(vec3_t a, vec3_t b) {
 
 float vec3_doc_product(vec3_t a, vec3_t b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+void vec3_normalize(vec3_t* a) {
+    float length = vec3_length(*a);
+    a->x /= length;
+    a->y /= length;
+    a->z /= length;
 }

@@ -10,7 +10,7 @@
 #define FPS 30
 #define FRAME_TARGET_TIME (1000.0 / FPS)
 
-// Varaible ////////////////////////////////////////////////
+// Variable ////////////////////////////////////////////////
 extern uint32_t* color_buffer;
 extern SDL_Texture* color_buffer_texture;
 extern int window_height;
