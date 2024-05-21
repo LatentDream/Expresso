@@ -1,6 +1,5 @@
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_timer.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -11,7 +10,7 @@
 #include "triangle.h"
 
 // Window Setting
-uint32_t* color_buffer            = NULL;
+color_t* color_buffer            = NULL;
 SDL_Texture* color_buffer_texture = NULL;
 
 // Display
@@ -36,7 +35,7 @@ rendering_mode current_rendering_mode = TRIANGLE_AND_WIREFRAME;
 
 void setup(void) {
     // Allocate the required memory in bytes to hold the color buffer
-    color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
+    color_buffer = (color_t*) malloc(sizeof(color_t) * window_width * window_height);
     
     // Creating a SDL texture that is used to display the color buffer
     color_buffer_texture = SDL_CreateTexture(
@@ -191,8 +190,8 @@ void render(void) {
     draw_ref();
 
     // Render all the triangle that need to be renderer
-    uint32_t color = 0xFFFF5400;
-    uint32_t color2 = 0xFF00FFFF;
+    color_t color = 0xFFFF5400;
+    color_t color2 = 0xFF00FFFF;
     int num_triangles = array_length(triangle_to_render);
     for (int i = 0; i < num_triangles; i++) {
         switch (current_rendering_mode) {

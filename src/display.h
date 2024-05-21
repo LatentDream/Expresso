@@ -12,9 +12,10 @@
 
 typedef enum { WIREFRAME, WIREFRAME_AND_VERTEX, TRIANGLE, TRIANGLE_AND_WIREFRAME } rendering_mode;
 typedef enum { CULLING_ON, CULLING_OFF } culling_mode;
+typedef uint32_t color_t;
 
 // Variable ////////////////////////////////////////////////
-extern uint32_t* color_buffer;
+extern color_t* color_buffer;
 extern SDL_Texture* color_buffer_texture;
 extern int window_height;
 extern int window_width;
@@ -25,11 +26,11 @@ extern SDL_Renderer* renderer;
 bool initialize_window(void);
 void draw_grid(void);
 void draw_ref(void);
-void draw_pixel(int x, int y, uint32_t color);
-void draw_rec(int x, int y, int w, int h, uint32_t color);
-void draw_line(vec2_t start, vec2_t end, uint32_t color);
-void draw_triangle(triangle_t triangle, uint32_t color);
-void clear_color_buffer(uint32_t color);
+void draw_pixel(int x, int y, color_t color);
+void draw_rec(int x, int y, int w, int h, color_t color);
+void draw_line(vec2_t start, vec2_t end, color_t color);
+void draw_triangle(triangle_t triangle, color_t color);
+void clear_color_buffer(color_t color);
 void render_color_buffer(void);
 void destroy_window(void);
 

@@ -2,7 +2,6 @@
 #include "triangle.h"
 #include "vector.h"
 #include <math.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -68,7 +67,7 @@ void draw_ref(void) {
 
 // Draw pixel -----------------------------------------------------------------
 
-void draw_pixel(int x, int y, uint32_t color) {
+void draw_pixel(int x, int y, color_t color) {
     if (x < window_width && x >= 0 && y < window_height && y >= 0) {
         color_buffer[(window_width * y) + x] = color;
     }
@@ -76,7 +75,7 @@ void draw_pixel(int x, int y, uint32_t color) {
 
 // Draw rect ------------------------------------------------------------------
 
-void draw_rec(int x, int y, int w, int h, uint32_t color) {
+void draw_rec(int x, int y, int w, int h, color_t color) {
     for (int j = y; j < window_height && j < y + h; j++) {
         for (int i = x; i < window_width && i < x + w; i++) {
             draw_pixel(i, j, color);
@@ -86,7 +85,7 @@ void draw_rec(int x, int y, int w, int h, uint32_t color) {
 
 // Draw line ------------------------------------------------------------------
 
-void draw_line_dda(vec2_t start, vec2_t end, uint32_t color) {
+void draw_line_dda(vec2_t start, vec2_t end, color_t color) {
     int delta_x = (end.x - start.x);
     int delta_y = (end.y - start.y);
 
@@ -105,7 +104,7 @@ void draw_line_dda(vec2_t start, vec2_t end, uint32_t color) {
     }
 }
 
-void draw_line_bresenham(int x0, int y0, int x1, int y1, uint32_t color) {
+void draw_line_bresenham(int x0, int y0, int x1, int y1, color_t color) {
     int dx = abs(x1 - x0);
     int sx = x0 < x1 ? 1 : -1;
     int dy = -abs(y1 - y0);
@@ -130,11 +129,11 @@ void draw_line_bresenham(int x0, int y0, int x1, int y1, uint32_t color) {
 }
 
 
-void draw_line(vec2_t start, vec2_t end, uint32_t color) {
+void draw_line(vec2_t start, vec2_t end, color_t color) {
     draw_line_bresenham(start.x, start.y, end.x, end.y, color);   
 }
 
-void draw_triangle(triangle_t triangle, uint32_t color) {
+void draw_triangle(triangle_t triangle, color_t color) {
     for (int v = 0; v < 3; v++) {
         draw_line(triangle.points[(v)%3], triangle.points[(v+1)%3], color);
     }
@@ -147,12 +146,12 @@ void render_color_buffer(void) {
         color_buffer_texture,
         NULL,
         color_buffer,
-        (int)(window_width * sizeof(uint32_t))
+        (int)(window_width * sizeof(color_t))
     );
     SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
 }
 
-void clear_color_buffer(uint32_t color) {
+void clear_color_buffer(color_t color) {
     for (int y = 0; y < window_height; y++) {
         for (int x = 0; x < window_width; x++) {
             color_buffer[(window_width * y) + x] = color;

@@ -8,7 +8,7 @@ void point_swap(vec2_t* point_a, vec2_t* point_b) {
     *point_b = tmp;
 }
 
-void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color) {
     // Find the two slope
     float inv_slope_1 = (float)(x1 - x0) / (y1 - y0);
     float inv_slope_2 = (float)(x2 - x0) / (y2 - y0);
@@ -27,7 +27,7 @@ void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, u
     }
 }
 
-void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color) {
     float inv_slope_1 = (float)(x2 - x0) / (y2 - y0);
     float inv_slope_2 = (float)(x2 - x1) / (y2 - y1);
     // Start x_start and x_end from the top vertex (x0, y0)
@@ -44,7 +44,7 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint
 
 }
 
-void draw_filled_triangle(triangle_t triangle, uint32_t color) {
+void draw_filled_triangle(triangle_t triangle, color_t color) {
     // Order the triangle
     if (triangle.points[0].y > triangle.points[1].y) {
         point_swap(&triangle.points[0], &triangle.points[1]);
