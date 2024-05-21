@@ -1,3 +1,8 @@
+<!-- Display ./example.png -->
+<p align="center">
+	<img width="400" src="./example.png">
+<p align="center">
+
 # Expresso
 
 Old school 3D engine.

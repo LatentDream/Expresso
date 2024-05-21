@@ -45,8 +45,8 @@ void setup(void) {
     );
 
     // load_cube_example_mesh();
-    load_mesh_from_obj_simple("./assets/teapot.obj");
-    // load_mesh_from_obj_complex("./assets/f22.obj");
+    // load_mesh_from_obj_simple("./assets/teapot.obj");
+    load_mesh_from_obj_complex("./assets/f22.obj");
 
 }
 
@@ -176,12 +176,23 @@ void render(void) {
     draw_ref();
 
     // Render all the triangle that need to be renderer
-    uint32_t color = 0xFF565422;
+    uint32_t color = 0xFFFF5400;
+    uint32_t color2 = 0xFF00FFFF;
     int num_triangles = array_length(triangle_to_render);
     for (int i = 0; i < num_triangles; i++) {
         triangle_t triangle = triangle_to_render[i];
-        draw_triangle(triangle, color);
+        draw_filled_triangle(triangle, color);
+        draw_triangle(triangle, color2);
     }
+    // triangle_t triangle = {
+    //     .points = {
+    //         { .x = 300, .y = 100 },
+    //         { .x = 200, .y = 200 },
+    //         { .x = 400, .y = 500 }
+    //     }
+    // };
+    // draw_triangle(triangle, 0xFFAABBAA);
+    // draw_filled_triangle(triangle, color);
 
     // Render
     render_color_buffer();
