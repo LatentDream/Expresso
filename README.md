@@ -113,4 +113,12 @@ Line drawing algorithms (Rasterize):
     - Warning: a bit slower because of the `/` operation
 - **Bresenham's line algorithm** - Optimized to use only additions (i.e. no division Multiplications); it also avoids floating-point computations.
 - **The Gupta-Sproull algorithm** - Based on Bresenham's line algorithm but adds antialiasing.
- 
+
+**Triagles**
+Filled triangle algorithms used: simple scanline algorithm, with a flat-bottom and flat-top triangle.
+
+
+### Triangle with color
+__Problem__: The order of the face being render is important for the depth.
+__Current solition__: Painters Algorithm, assumption: Z-value is the average of the 3 points.
+__Cleaver solution__: Z-buffering (or depth buffering) -- **Will be done soon**

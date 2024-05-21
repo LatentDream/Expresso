@@ -29,6 +29,7 @@ vec3_t camera_position = { .x = 0, .y = 0, .z = -5 };
 triangle_t* triangle_to_render = NULL;
 culling_mode current_culling_mode = CULLING_ON;
 rendering_mode current_rendering_mode = TRIANGLE_AND_WIREFRAME;
+color_t COLOR_CONTRAST = 0xFF1154BB;
 
 
 // Setup Function ==============================================================
@@ -46,9 +47,9 @@ void setup(void) {
         window_height
     );
 
-    // load_cube_example_mesh();
+    load_cube_example_mesh();
     // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
-    load_mesh_from_obj_complex("./assets/f22.obj", 0xFFFF5400);
+    // load_mesh_from_obj_complex("./assets/f22.obj", 0xFFFF5400);
 
 }
 
@@ -177,8 +178,23 @@ void update(void) {
         }
         projected_triangle.color = mesh_face.color;
 
+        projected_triangle.avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
+
         // Save the projected tri. for the renderer
         array_push(triangle_to_render, projected_triangle);
+    }
+
+    // Bubble sort: will need to be optimized
+    int num_triangles = array_length(triangle_to_render);
+    for (int i = 0; i < num_triangles; i++) {
+        for (int j = i; j < num_triangles; j++) {
+            if (triangle_to_render[i].avg_depth < triangle_to_render[j].avg_depth) {
+                // Swap the triangles positions in the array
+                triangle_t temp = triangle_to_render[i];
+                triangle_to_render[i] = triangle_to_render[j];
+                triangle_to_render[j] = temp;
+            }
+        }
     }
 
 }
@@ -191,14 +207,13 @@ void render(void) {
     draw_ref();
 
     // Render all the triangle that need to be renderer
-    color_t color_contrast = 0xFF1154BB;
     int num_triangles = array_length(triangle_to_render);
     for (int i = 0; i < num_triangles; i++) {
         switch (current_rendering_mode) {
             case WIREFRAME_AND_VERTEX:
             draw_triangle(triangle_to_render[i], triangle_to_render[i].color);
             for (int j = 0; j < 3; j++) {
-                draw_rec(triangle_to_render[i].points[j].x, triangle_to_render[i].points[j].y, 4, 4, color_contrast);
+                draw_rec(triangle_to_render[i].points[j].x, triangle_to_render[i].points[j].y, 4, 4, COLOR_CONTRAST);
             }
             break;
             case WIREFRAME:
@@ -208,7 +223,7 @@ void render(void) {
             draw_filled_triangle(triangle_to_render[i], triangle_to_render[i].color);
             break;
             case TRIANGLE_AND_WIREFRAME:
-            draw_triangle(triangle_to_render[i], color_contrast);
+            draw_triangle(triangle_to_render[i], COLOR_CONTRAST);
             draw_filled_triangle(triangle_to_render[i], triangle_to_render[i].color);
             break;
         }

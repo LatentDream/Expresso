@@ -38,3 +38,4 @@ void array_free(void* array) {
         free(ARRAY_RAW_DATA(array));
     }
 }
+
