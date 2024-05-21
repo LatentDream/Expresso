@@ -10,6 +10,9 @@
 #define FPS 30
 #define FRAME_TARGET_TIME (1000.0 / FPS)
 
+typedef enum { WIREFRAME, WIREFRAME_AND_VERTEX, TRIANGLE, TRIANGLE_AND_WIREFRAME } rendering_mode;
+typedef enum { CULLING_ON, CULLING_OFF } culling_mode;
+
 // Variable ////////////////////////////////////////////////
 extern uint32_t* color_buffer;
 extern SDL_Texture* color_buffer_texture;

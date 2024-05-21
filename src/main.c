@@ -1,3 +1,4 @@
+#include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_timer.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -27,6 +28,8 @@ int previous_frame_time = 0;
 #define fov_factor 485
 vec3_t camera_position = { .x = 0, .y = 0, .z = -5 };
 triangle_t* triangle_to_render = NULL;
+culling_mode current_culling_mode = CULLING_ON;
+rendering_mode current_rendering_mode = TRIANGLE_AND_WIREFRAME;
 
 
 // Setup Function ==============================================================
@@ -69,6 +72,16 @@ void process_input(void) {
         case SDL_KEYDOWN:
             if (event.key.keysym.sym == SDLK_ESCAPE)
                 is_running = false;
+            if (event.key.keysym.sym == SDLK_c)
+                current_culling_mode = (current_culling_mode + 1) % 2;
+            if (event.key.keysym.sym == SDLK_y)
+                current_rendering_mode = WIREFRAME_AND_VERTEX;
+            if (event.key.keysym.sym == SDLK_u)
+                current_rendering_mode = WIREFRAME;
+            if (event.key.keysym.sym == SDLK_i)
+                current_rendering_mode = TRIANGLE;
+            if (event.key.keysym.sym == SDLK_o)
+                current_rendering_mode = TRIANGLE_AND_WIREFRAME;
             break;
     }
 }
@@ -129,26 +142,28 @@ void update(void) {
             transformed_vertices[j] = transformed_vertex;
         }
 
-        // Back culling the faces that are not visible/*     A     */
-        vec3_t vector_a = transformed_vertices[0];    /*    / \    */
-        vec3_t vector_b = transformed_vertices[1];    /*   /   \   */
-        vec3_t vector_c = transformed_vertices[2];    /*  C --- B  */
-        vec3_t vector_ab = vec3_sub(vector_b, vector_a);
-        vec3_normalize(&vector_ab);
-        vec3_t vector_ac = vec3_sub(vector_c, vector_a);
-        vec3_normalize(&vector_ac);
+        if (current_culling_mode == CULLING_ON) {
+            // Back culling the faces that are not visible/*     A     */
+            vec3_t vector_a = transformed_vertices[0];    /*    / \    */
+            vec3_t vector_b = transformed_vertices[1];    /*   /   \   */
+            vec3_t vector_c = transformed_vertices[2];    /*  C --- B  */
+            vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+            vec3_normalize(&vector_ab);
+            vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+            vec3_normalize(&vector_ac);
 
-        // Compute the face normal (using cross product to find perpendicular);
-        vec3_t normal = vec3_cross(vector_ab, vector_ac);
-        // Normalize the vec
-        vec3_normalize(&normal);
-        // Vector between the a point in the triangle and the camera origin
-        vec3_t camera_ray = vec3_sub(camera_position, vector_a);
-        // Verify if the normal and camera are align
-        float alignment = vec3_doc_product(camera_ray, normal);
-        // Prune the negative triangle
-        if (alignment < 0) {
-            continue;
+            // Compute the face normal (using cross product to find perpendicular);
+            vec3_t normal = vec3_cross(vector_ab, vector_ac);
+            // Normalize the vec
+            vec3_normalize(&normal);
+            // Vector between the a point in the triangle and the camera origin
+            vec3_t camera_ray = vec3_sub(camera_position, vector_a);
+            // Verify if the normal and camera are align
+            float alignment = vec3_doc_product(camera_ray, normal);
+            // Prune the negative triangle
+            if (alignment < 0) {
+                continue;
+            }
         }
 
         // Project the point in 2D
@@ -180,19 +195,26 @@ void render(void) {
     uint32_t color2 = 0xFF00FFFF;
     int num_triangles = array_length(triangle_to_render);
     for (int i = 0; i < num_triangles; i++) {
-        triangle_t triangle = triangle_to_render[i];
-        draw_filled_triangle(triangle, color);
-        draw_triangle(triangle, color2);
+        switch (current_rendering_mode) {
+            case WIREFRAME_AND_VERTEX:
+            draw_triangle(triangle_to_render[i], color);
+            draw_filled_triangle(triangle_to_render[i], color2);
+            for (int j = 0; j < 3; j++) {
+                draw_rec(triangle_to_render[i].points[j].x, triangle_to_render[i].points[j].y, 4, 4, 0xFF00FF00);
+            }
+            break;
+            case WIREFRAME:
+            draw_triangle(triangle_to_render[i], color);
+            break;
+            case TRIANGLE:
+            draw_filled_triangle(triangle_to_render[i], color2);
+            break;
+            case TRIANGLE_AND_WIREFRAME:
+            draw_triangle(triangle_to_render[i], color);
+            draw_filled_triangle(triangle_to_render[i], color2);
+            break;
+        }
     }
-    // triangle_t triangle = {
-    //     .points = {
-    //         { .x = 300, .y = 100 },
-    //         { .x = 200, .y = 200 },
-    //         { .x = 400, .y = 500 }
-    //     }
-    // };
-    // draw_triangle(triangle, 0xFFAABBAA);
-    // draw_filled_triangle(triangle, color);
 
     // Render
     render_color_buffer();
