@@ -1,6 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include "display.h"
 #include "vector.h"
 #include "triangle.h"
 
@@ -22,7 +23,7 @@ typedef struct {
 extern mesh_t mesh;
 
 void load_cube_example_mesh(void);
-void load_mesh_from_obj_simple(const char* filename);
-void load_mesh_from_obj_complex(char* filename);
+void load_mesh_from_obj_simple(const char* filename, color_t color);
+void load_mesh_from_obj_complex(char* filename, color_t color);
 
 #endif // !MESH_H

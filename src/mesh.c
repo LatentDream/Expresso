@@ -1,5 +1,6 @@
 #include "mesh.h"
 #include "array.h"
+#include "display.h"
 #include "vector.h"
 #include <stdio.h>
 #include <string.h>
@@ -19,23 +20,23 @@ vec3_t cube_vertices[N_CUBE_VERTICES] = {
 
 face_t cube_faces[N_CUBE_FACES] = {
     // front
-    { .a = 1, .b = 2, .c = 3 },
-    { .a = 1, .b = 3, .c = 4 },
+    { .a = 1, .b = 2, .c = 3, .color = 0xFF661100 },
+    { .a = 1, .b = 3, .c = 4, .color = 0xFF661100 },
     // right
-    { .a = 4, .b = 3, .c = 5 },
-    { .a = 4, .b = 5, .c = 6 },
+    { .a = 4, .b = 3, .c = 5, .color = 0xFF0000FF },
+    { .a = 4, .b = 5, .c = 6, .color = 0xFF0000FF },
     // back
-    { .a = 6, .b = 5, .c = 7 },
-    { .a = 6, .b = 7, .c = 8 },
+    { .a = 6, .b = 5, .c = 7, .color = 0xFFFF0000 },
+    { .a = 6, .b = 7, .c = 8, .color = 0xFFFF0000 },
     // left
-    { .a = 8, .b = 7, .c = 2 },
-    { .a = 8, .b = 2, .c = 1 },
+    { .a = 8, .b = 7, .c = 2, .color = 0xFF00FF00 },
+    { .a = 8, .b = 2, .c = 1, .color = 0xFF00FF00 },
     // top
-    { .a = 2, .b = 7, .c = 5 },
-    { .a = 2, .b = 5, .c = 3 },
+    { .a = 2, .b = 7, .c = 5, .color = 0xFF009900 },
+    { .a = 2, .b = 5, .c = 3, .color = 0xFF009900 },
     // bottom
-    { .a = 6, .b = 8, .c = 1 },
-    { .a = 6, .b = 1, .c = 4 }
+    { .a = 6, .b = 8, .c = 1, .color = 0xFF880033 },
+    { .a = 6, .b = 1, .c = 4, .color = 0xFF880033 }
 };
 
 void load_cube_example_mesh(void) {
@@ -47,7 +48,8 @@ void load_cube_example_mesh(void) {
     }
 }
 
-void load_mesh_from_obj_simple(const char* filename) {
+// Load a mesh from an .obj file that contains only vertices and faces
+void load_mesh_from_obj_simple(const char* filename, color_t color) {
     FILE* file = fopen(filename, "r");
     if (!file) {
         printf("Failed to open file: %s\n", filename);
@@ -62,6 +64,7 @@ void load_mesh_from_obj_simple(const char* filename) {
         } else if (line[0] == 'f') {
             face_t face;
             sscanf(line, "f %d %d %d\n", &face.a, &face.b, &face.c);
+            face.color = color;
             array_push(mesh.faces, face);
         }
     }
@@ -69,7 +72,7 @@ void load_mesh_from_obj_simple(const char* filename) {
 
 }
 
-void load_mesh_from_obj_complex(char* filename) {
+void load_mesh_from_obj_complex(char* filename, color_t color) {
     FILE* file;
     file = fopen(filename, "r");
     char line[1024];
@@ -95,7 +98,8 @@ void load_mesh_from_obj_complex(char* filename) {
             face_t face = {
                 .a = vertex_indices[0],
                 .b = vertex_indices[1],
-                .c = vertex_indices[2]
+                .c = vertex_indices[2],
+                .color = color
             };
             array_push(mesh.faces, face);
         }

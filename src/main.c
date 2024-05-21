@@ -47,8 +47,8 @@ void setup(void) {
     );
 
     // load_cube_example_mesh();
-    // load_mesh_from_obj_simple("./assets/teapot.obj");
-    load_mesh_from_obj_complex("./assets/f22.obj");
+    // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
+    load_mesh_from_obj_complex("./assets/f22.obj", 0xFFFF5400);
 
 }
 
@@ -175,6 +175,7 @@ void update(void) {
             projected_point.y += window_height / 2;
             projected_triangle.points[j] = projected_point;
         }
+        projected_triangle.color = mesh_face.color;
 
         // Save the projected tri. for the renderer
         array_push(triangle_to_render, projected_triangle);
@@ -190,27 +191,25 @@ void render(void) {
     draw_ref();
 
     // Render all the triangle that need to be renderer
-    color_t color = 0xFFFF5400;
-    color_t color2 = 0xFF00FFFF;
+    color_t color_contrast = 0xFF1154BB;
     int num_triangles = array_length(triangle_to_render);
     for (int i = 0; i < num_triangles; i++) {
         switch (current_rendering_mode) {
             case WIREFRAME_AND_VERTEX:
-            draw_triangle(triangle_to_render[i], color);
-            draw_filled_triangle(triangle_to_render[i], color2);
+            draw_triangle(triangle_to_render[i], triangle_to_render[i].color);
             for (int j = 0; j < 3; j++) {
-                draw_rec(triangle_to_render[i].points[j].x, triangle_to_render[i].points[j].y, 4, 4, 0xFF00FF00);
+                draw_rec(triangle_to_render[i].points[j].x, triangle_to_render[i].points[j].y, 4, 4, color_contrast);
             }
             break;
             case WIREFRAME:
-            draw_triangle(triangle_to_render[i], color);
+            draw_triangle(triangle_to_render[i], triangle_to_render[i].color);
             break;
             case TRIANGLE:
-            draw_filled_triangle(triangle_to_render[i], color2);
+            draw_filled_triangle(triangle_to_render[i], triangle_to_render[i].color);
             break;
             case TRIANGLE_AND_WIREFRAME:
-            draw_triangle(triangle_to_render[i], color);
-            draw_filled_triangle(triangle_to_render[i], color2);
+            draw_triangle(triangle_to_render[i], color_contrast);
+            draw_filled_triangle(triangle_to_render[i], triangle_to_render[i].color);
             break;
         }
     }
