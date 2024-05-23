@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "array.h"
 #include "display.h"
+#include "matrix.h"
 #include "vector.h"
 #include "mesh.h"
 #include "triangle.h"
@@ -115,6 +116,11 @@ void update(void) {
     mesh.rotation.x += 0.01;
     mesh.rotation.y += 0.03;
     mesh.rotation.z += 0.03;
+    mesh.scale.x += 0.2;
+    mesh.scale.y += 0.1;
+    mesh.scale.z += 0.0;
+
+    mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
 
     // Loop over the triangle faces
     for (int i = 0; i < array_length(mesh.faces); i++) {
@@ -126,27 +132,29 @@ void update(void) {
         face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
         triangle_t projected_triangle;
-        vec3_t transformed_vertices[3];
+        vec4_t transformed_vertices[3];
 
         // Loop over the vertices and apply the transformation and save it for the renderer
         for (int j = 0; j < 3; j++) {
-            vec3_t transformed_vertex = face_vertices[j];
+            vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
+            transformed_vertex = mat4_mult_vec4(scale_matrix, transformed_vertex);
+
             // Accumulate the postion of transform xyz
-            transformed_vertex = vec3_rotate_x(transformed_vertex, mesh.rotation.x);
-            transformed_vertex = vec3_rotate_y(transformed_vertex, mesh.rotation.y);
-            transformed_vertex = vec3_rotate_z(transformed_vertex, mesh.rotation.z);
+            // transformed_vertex = vec3_rotate_x(transformed_vertex, mesh.rotation.x);
+            // transformed_vertex = vec3_rotate_y(transformed_vertex, mesh.rotation.y);
+            // transformed_vertex = vec3_rotate_z(transformed_vertex, mesh.rotation.z);
 
             // Translate away from the camera
-            transformed_vertex.z += 5;
+            transformed_vertex.data[3] += 5;
 
             transformed_vertices[j] = transformed_vertex;
         }
 
         if (current_culling_mode == CULLING_ON) {
-            // Back culling the faces that are not visible/*     A     */
-            vec3_t vector_a = transformed_vertices[0];    /*    / \    */
-            vec3_t vector_b = transformed_vertices[1];    /*   /   \   */
-            vec3_t vector_c = transformed_vertices[2];    /*  C --- B  */
+            // Back culling the faces that are not visible                /*     A     */
+            vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);    /*    / \    */
+            vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);    /*   /   \   */
+            vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);    /*  C --- B  */
             vec3_t vector_ab = vec3_sub(vector_b, vector_a);
             vec3_normalize(&vector_ab);
             vec3_t vector_ac = vec3_sub(vector_c, vector_a);
@@ -166,19 +174,21 @@ void update(void) {
             }
         }
 
+        float avg_z = 0;
         // Project the point in 2D
         for (int j = 0; j < 3; j++) {
-            vec3_t transformed_vertex = transformed_vertices[j];
+            vec3_t transformed_vertex = vec3_from_vec4(transformed_vertices[j]);
             // Project the point in 2D
             vec2_t projected_point = project(transformed_vertex);
             // Scale and place in the middle
             projected_point.x += window_width / 2;
             projected_point.y += window_height / 2;
             projected_triangle.points[j] = projected_point;
+            avg_z += transformed_vertex.z;
         }
         projected_triangle.color = mesh_face.color;
 
-        projected_triangle.avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
+        projected_triangle.avg_depth = avg_z / 3;
 
         // Save the projected tri. for the renderer
         array_push(triangle_to_render, projected_triangle);

@@ -91,3 +91,21 @@ void vec3_normalize(vec3_t* a) {
     a->y /= length;
     a->z /= length;
 }
+
+// Vector Convertion Functions ==============================
+vec4_t vec4_from_vec3(vec3_t v) {
+    vec4_t result = {0};
+    result.data[0] = v.x;
+    result.data[1] = v.y;
+    result.data[2] = v.z;
+    result.data[3] = 1.0f;
+    return result;
+}
+
+vec3_t vec3_from_vec4(vec4_t v) {
+    vec3_t result = {0};
+    result.x = v.data[0];
+    result.y = v.data[1];
+    result.z = v.data[2];
+    return result;
+}

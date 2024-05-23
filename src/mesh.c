@@ -5,7 +5,13 @@
 #include <stdio.h>
 #include <string.h>
 
-mesh_t mesh = { 0 };
+mesh_t mesh = {
+    .vertices = NULL,
+    .faces = NULL,
+    .rotation = { 0, 0, 0 },
+    .scale = { 1.0, 1.0, 1.0 },
+    .translation = { 0, 0, 0 }
+};
 
 vec3_t cube_vertices[N_CUBE_VERTICES] = {
     { .x = -1, .y = -1, .z = -1},   // 1

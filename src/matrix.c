@@ -68,3 +68,15 @@ mat4_t expimental__mat_mult_fast(mat4_t a, mat4_t b) {
     }
     return result;
 }
+
+vec4_t mat4_mult_vec4(mat4_t m, vec4_t v) {
+    vec4_t result = {0};
+    for (int row = 0; row < 4; row++) {
+        float sum = 0.0f;
+        for (int i = 0; i < 4; i++) {
+            sum += m.data[row * 4 + i] * v.data[i];
+        }
+        result.data[row] = sum;
+    }
+    return result;
+}
