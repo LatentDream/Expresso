@@ -122,3 +122,49 @@ Filled triangle algorithms used: simple scanline algorithm, with a flat-bottom a
 __Problem__: The order of the face being render is important for the depth.
 __Current solition__: Painters Algorithm, assumption: Z-value is the average of the 3 points.
 __Cleaver solution__: Z-buffering (or depth buffering) -- **Will be done soon**
+
+
+---
+# Time to speed up things 🚀
+
+Homogeneous coordinates - 4x4 Matrix
+```
+[ m  m  m  m ] [ x ]
+[ m  m  m  m ] [ y ]
+[ m  m  m  m ] [ z ]
+[ m  m  m  m ] [ w ]
+```
+- m: extra component to enable matrix transformation, set to 1.
+- 4x4: because some transformation required extra information for them to work.
+
+#### Scaling matrix
+```
+[ sx  0  0  0 ] [ x ]
+[  0 sy  0  0 ] [ y ]
+[  0  0 sz  0 ] [ z ]
+[  0  0  0  1 ] [ w ]
+```
+
+#### Translation matrix
+```
+[ 1  0  0 tx ] [ x ]
+[ 0  1  0 ty ] [ y ]
+[ 0  0  1 tz ] [ z ]
+[ 0  0  0  1 ] [ w ]
+```
+
+#### Rotation matrix
+```
+[ cos(a) -sin(a)  0  0 ] [ x ]
+[ sin(a)  cos(a)  0  0 ] [ y ]
+[  0       0      1  0 ] [ z ]
+[  0       0      0  1 ] [ w ]
+```
+
+#### Projection matrix
+```
+[ 1  0  0  0 ] [ x ]
+[ 0  1  0  0 ] [ y ]
+[ 0  0  1  0 ] [ z ]
+[ 0  0  1  0 ] [ w ]
+```
