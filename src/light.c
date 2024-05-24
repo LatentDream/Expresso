@@ -6,6 +6,8 @@ light_t light = {
 };
 
 color_t shade_color(color_t original_color, float factor) {
+    if (factor < 0) factor = 0;
+    if (factor > 1) factor = 1;
 
     // Shade the color
     color_t a = (original_color & 0xFF000000);
