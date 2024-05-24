@@ -139,15 +139,16 @@ void update(void) {
         vec4_t transformed_vertices[3];
 
         // Loop over the vertices and apply the transformation and save it for the renderer
+        mat4_t world_matrix = mat4_identity();
+        world_matrix = mat4_mult(world_matrix, translation_matrix);
+        world_matrix = mat4_mult(world_matrix, rotation_matrix_x);
+        world_matrix = mat4_mult(world_matrix, rotation_matrix_y);
+        world_matrix = mat4_mult(world_matrix, rotation_matrix_z);
+        world_matrix = mat4_mult(world_matrix, scale_matrix);
+
         for (int j = 0; j < 3; j++) {
             vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
-            transformed_vertex = mat4_mult_vec4(scale_matrix, transformed_vertex);
-
-            transformed_vertex = mat4_mult_vec4(rotation_matrix_x, transformed_vertex);
-            transformed_vertex = mat4_mult_vec4(rotation_matrix_y, transformed_vertex);
-            transformed_vertex = mat4_mult_vec4(rotation_matrix_z, transformed_vertex);
-
-            transformed_vertex = mat4_mult_vec4(translation_matrix, transformed_vertex);
+            transformed_vertex = mat4_mult_vec4(world_matrix, transformed_vertex);
             transformed_vertices[j] = transformed_vertex;
         }
 
