@@ -18,7 +18,7 @@ vec2_t vec2_mult(vec2_t a, float factor) {
     return (vec2_t) {a.x * factor, a.y * factor};
 }
 
-float vec2_doc_product(vec2_t a, vec2_t b) {
+float vec2_dot_product(vec2_t a, vec2_t b) {
     return a.x * b.x + a.y * b.y;
 }
 
@@ -81,7 +81,7 @@ vec3_t vec3_cross(vec3_t a, vec3_t b) {
     return cross_product;
 }
 
-float vec3_doc_product(vec3_t a, vec3_t b) {
+float vec3_dot_product(vec3_t a, vec3_t b) {
     return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 

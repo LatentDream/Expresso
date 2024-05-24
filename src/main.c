@@ -1,11 +1,11 @@
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_timer.h>
-#include <math.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 #include "array.h"
 #include "display.h"
+#include "light.h"
 #include "matrix.h"
 #include "vector.h"
 #include "mesh.h"
@@ -57,9 +57,9 @@ void setup(void) {
     float far = 100.0;
     perspective = mat4_make_perspective(fov, aspect, near, far);
 
-    load_cube_example_mesh();
+    // load_cube_example_mesh();
     // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
-    // load_mesh_from_obj_complex("./assets/f22.obj", 0xFFFF5400);
+    load_mesh_from_obj_complex("./assets/f22.obj", 0xFFFF5400);
 
 }
 
@@ -128,7 +128,7 @@ void update(void) {
     // mesh.scale.x += 0.002;
     // mesh.scale.y += 0.001;
     // mesh.translation.x += 0.01;
-    mesh.translation.z = 5.0;
+    mesh.translation.z = 10.0;
     
     // Transformation matrices
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
@@ -162,26 +162,30 @@ void update(void) {
             transformed_vertices[j] = transformed_vertex;
         }
 
-        if (current_culling_mode == CULLING_ON) {
-            // Back culling the faces that are not visible                /*     A     */
-            vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);    /*    / \    */
-            vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);    /*   /   \   */
-            vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);    /*  C --- B  */
-            vec3_t vector_ab = vec3_sub(vector_b, vector_a);
-            vec3_normalize(&vector_ab);
-            vec3_t vector_ac = vec3_sub(vector_c, vector_a);
-            vec3_normalize(&vector_ac);
 
-            // Compute the face normal (using cross product to find perpendicular);
-            vec3_t normal = vec3_cross(vector_ab, vector_ac);
-            // Normalize the vec
-            vec3_normalize(&normal);
-            // Vector between the a point in the triangle and the camera origin
-            vec3_t camera_ray = vec3_sub(camera_position, vector_a);
-            // Verify if the normal and camera are align
-            float alignment = vec3_doc_product(camera_ray, normal);
+        // Utils for Back culling and light shading                   /*     A     */
+        vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);    /*    / \    */
+        vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);    /*   /   \   */
+        vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);    /*  C --- B  */
+
+        vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+        vec3_normalize(&vector_ab);
+        vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+        vec3_normalize(&vector_ac);
+
+        // Compute the face normal (using cross product to find perpendicular);
+        vec3_t normal = vec3_cross(vector_ab, vector_ac);
+        // Normalize the vec
+        vec3_normalize(&normal);
+
+        // Vector between the a point in the triangle and the camera origin
+        vec3_t camera_ray = vec3_sub(camera_position, vector_a);
+        // Verify if the normal and camera are align
+        float alignment_with_camera = vec3_dot_product(camera_ray, normal);
+        if (current_culling_mode == CULLING_ON) {
+
             // Prune the negative triangle
-            if (alignment < 0) {
+            if (alignment_with_camera < 0) {
                 continue;
             }
         }
@@ -202,11 +206,12 @@ void update(void) {
         }
         float avg_depth = (transformed_vertices[0].data[2] + transformed_vertices[1].data[2] + transformed_vertices[2].data[2]) / 3;
 
-
+        float light_factor = vec3_dot_product(normal, light.direction);
+        color_t color_shaded = shade_color(mesh_face.color, light_factor);
         
         triangle_t projected_triangle = {
             .avg_depth = avg_depth,
-            .color = mesh_face.color,
+            .color = color_shaded,
             .points = {
                 { .x = projected_points[0].data[0], .y = projected_points[0].data[1] },
                 { .x = projected_points[1].data[0], .y = projected_points[1].data[1] },

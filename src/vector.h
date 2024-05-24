@@ -29,7 +29,7 @@ float  vec2_length(vec2_t v);
 vec2_t vec2_add(vec2_t a, vec2_t b);
 vec2_t vec2_sub(vec2_t a, vec2_t b);
 vec2_t vec2_mult(vec2_t a, float factor);
-float  vec2_doc_product(vec2_t a, vec2_t b);
+float  vec2_dot_product(vec2_t a, vec2_t b);
 void   vec2_normalize(vec2_t* a);
 
 // 3D
@@ -41,7 +41,7 @@ vec3_t vec3_add(vec3_t a, vec3_t b);
 vec3_t vec3_sub(vec3_t a, vec3_t b);
 vec3_t vec3_mult(vec3_t a, float factor);
 vec3_t vec3_cross(vec3_t a, vec3_t b);
-float  vec3_doc_product(vec3_t a, vec3_t b);
+float  vec3_dot_product(vec3_t a, vec3_t b);
 void   vec3_normalize(vec3_t* a);
 
 // 4D

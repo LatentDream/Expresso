@@ -186,8 +186,10 @@ Homogeneous coordinates - 4x4 Matrix
 	  \    /
 	   obs
 ```
-`lambda = (z_far / (z_far - z_near)) - (z_far * z_near / (z_far - z_near))`
-|--------- scaling ----------------|   |------- offset / translation -----|
+```
+lambda = (z_far / (z_far - z_near)) - (z_far * z_near / (z_far - z_near))
+|--------- scaling ---------------|   |------- offset / translation ----|
+```
 
 
 ```
@@ -202,4 +204,9 @@ Homogeneous coordinates - 4x4 Matrix
 [  0   0 lambda  -lambda*z_near ]
 [  0   0    1          0        ]
 ```
+
+# Shading
+### Flat shading
+One of the simplest shading techniques, it calculates the color of each polygon, based on the color of the light source and the color of the polygon itself.
+
 
