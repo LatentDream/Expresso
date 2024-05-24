@@ -162,9 +162,44 @@ Homogeneous coordinates - 4x4 Matrix
 ```
 
 #### Projection matrix
+
+- Aspect ration: `a = width / height`
+- Field of view: `f = 1 / tan(fov / 2)`
 ```
-[ 1  0  0  0 ] [ x ]
-[ 0  1  0  0 ] [ y ]
-[ 0  0  1  0 ] [ z ]
-[ 0  0  1  0 ] [ w ]
+[x]    [afx]
+[y] -> [fy ] 
+[z]    [ z ]
 ```
+- We have to normalize the z value
+```
+--------- z_far ----------
+\                        /
+ \ 	       ___      /
+  \            |_|     /
+   \                  /
+    \                /
+     \              /
+      \            /
+       \--z_near--/   <- Screen
+        \        /
+         \      /
+	  \    /
+	   obs
+```
+`lambda = (z_far / (z_far - z_near)) - (z_far * z_near / (z_far - z_near))`
+|--------- scaling ----------------|   |------- offset / translation -----|
+
+
+```
+[x]    [           afx            ]
+[y] -> [           fy             ] 
+[z]    [ lambda*z - lambda*z_near ]
+```
+#### So the final projection matrix
+```
+[ af   0    0          0        ]
+[  0   f    0          0        ]
+[  0   0 lambda  -lambda*z_near ]
+[  0   0    1          0        ]
+```
+

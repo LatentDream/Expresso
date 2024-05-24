@@ -1,5 +1,6 @@
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_timer.h>
+#include <math.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -31,6 +32,7 @@ triangle_t* triangle_to_render = NULL;
 culling_mode current_culling_mode = CULLING_ON;
 rendering_mode current_rendering_mode = TRIANGLE_AND_WIREFRAME;
 color_t COLOR_CONTRAST = 0xFF1154BB;
+mat4_t perspective;
 
 
 // Setup Function ==============================================================
@@ -47,6 +49,13 @@ void setup(void) {
         window_width,
         window_height
     );
+
+    // Init the perspective matrix
+    float fov = 1.047194;  // 60 degrees in radians
+    float aspect = (float)window_height / (float)window_width;
+    float near = 0.1;
+    float far = 100.0;
+    perspective = mat4_make_perspective(fov, aspect, near, far);
 
     load_cube_example_mesh();
     // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
@@ -114,18 +123,26 @@ void update(void) {
 
     // Our movement
     mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.01;
-    mesh.rotation.z += 0.01;
-    mesh.scale.x += 0.002;
-    mesh.scale.y += 0.001;
-    mesh.translation.x += 0.01;
+    // mesh.rotation.y += 0.01;
+    // mesh.rotation.z += 0.01;
+    // mesh.scale.x += 0.002;
+    // mesh.scale.y += 0.001;
+    // mesh.translation.x += 0.01;
     mesh.translation.z = 5.0;
     
+    // Transformation matrices
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
     mat4_t translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
     mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
     mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
     mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
+    // World matrix
+    mat4_t world_matrix = mat4_identity();
+    world_matrix = mat4_mult(world_matrix, translation_matrix);
+    world_matrix = mat4_mult(world_matrix, rotation_matrix_x);
+    world_matrix = mat4_mult(world_matrix, rotation_matrix_y);
+    world_matrix = mat4_mult(world_matrix, rotation_matrix_z);
+    world_matrix = mat4_mult(world_matrix, scale_matrix);
 
     // Loop over the triangle faces
     for (int i = 0; i < array_length(mesh.faces); i++) {
@@ -139,13 +156,6 @@ void update(void) {
         vec4_t transformed_vertices[3];
 
         // Loop over the vertices and apply the transformation and save it for the renderer
-        mat4_t world_matrix = mat4_identity();
-        world_matrix = mat4_mult(world_matrix, translation_matrix);
-        world_matrix = mat4_mult(world_matrix, rotation_matrix_x);
-        world_matrix = mat4_mult(world_matrix, rotation_matrix_y);
-        world_matrix = mat4_mult(world_matrix, rotation_matrix_z);
-        world_matrix = mat4_mult(world_matrix, scale_matrix);
-
         for (int j = 0; j < 3; j++) {
             vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
             transformed_vertex = mat4_mult_vec4(world_matrix, transformed_vertex);
@@ -176,21 +186,33 @@ void update(void) {
             }
         }
 
-        triangle_t projected_triangle;
-        float avg_z = 0;
+        vec4_t projected_points[3];
         // Project the point in 2D
         for (int j = 0; j < 3; j++) {
-            vec3_t transformed_vertex = vec3_from_vec4(transformed_vertices[j]);
             // Project the point in 2D
-            vec2_t projected_point = project(transformed_vertex);
-            // Scale and place in the middle
-            projected_point.x += window_width / 2;
-            projected_point.y += window_height / 2;
-            projected_triangle.points[j] = projected_point;
-            avg_z += transformed_vertex.z;
+            projected_points[j] = mat4_mul_vec4_project(perspective, transformed_vertices[j]);
+
+            // Scale into view
+            projected_points[j].data[0] *= (window_width / 2);
+            projected_points[j].data[1] *= (window_height / 2);
+
+            // Translate in the middle of the screen
+            projected_points[j].data[0] += window_width / 2;
+            projected_points[j].data[1] += window_height / 2;
         }
-        projected_triangle.color = mesh_face.color;
-        projected_triangle.avg_depth = avg_z / 3;
+        float avg_depth = (transformed_vertices[0].data[2] + transformed_vertices[1].data[2] + transformed_vertices[2].data[2]) / 3;
+
+
+        
+        triangle_t projected_triangle = {
+            .avg_depth = avg_depth,
+            .color = mesh_face.color,
+            .points = {
+                { .x = projected_points[0].data[0], .y = projected_points[0].data[1] },
+                { .x = projected_points[1].data[0], .y = projected_points[1].data[1] },
+                { .x = projected_points[2].data[0], .y = projected_points[2].data[1] }
+            }
+        };
 
         // Save the projected tri. for the renderer
         array_push(triangle_to_render, projected_triangle);

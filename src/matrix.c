@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <immintrin.h>
 #include "matrix.h"
+#include "vector.h"
 
 // Create Matrix Functions ======================================
 
@@ -61,6 +62,34 @@ mat4_t mat4_make_rotation_y(float angle) {
     result.data[2]  = s;
     result.data[8]  = -s;
     result.data[10] = c;
+    return result;
+}
+
+mat4_t mat4_make_perspective(float fov, float aspect, float z_near, float z_far) {
+    if (z_near == z_far || aspect == 0.0f) {
+        printf("[ERROR] Invalid perspective matrix parameters\n");
+        return mat4_identity();
+    }
+    mat4_t result = {0};
+    float tan_half_fov = tan(fov / 2.0f);
+    result.data[0]  = aspect * (1.0f / (tan_half_fov));
+    result.data[5]  = 1.0f / tan_half_fov;
+    result.data[10] = z_far / (z_far - z_near);
+    result.data[11] = -(z_far * z_near) / (z_far - z_near);
+    result.data[14] = 1.0f;  // To save the original z value (for perspective division, etc.)
+    return result;
+}
+
+vec4_t mat4_mul_vec4_project(mat4_t mat_proj, vec4_t v) {
+    // Multiply the vector by the projection matrix
+    vec4_t result = mat4_mult_vec4(mat_proj, v);
+    if (result.data[3] != 0.0f) {
+        // Nomalize the vector between -1 and 1
+        result.data[0] /= result.data[3];
+        result.data[1] /= result.data[3];
+        result.data[2] /= result.data[3];
+        result.data[3] = 1.0f;
+    }
     return result;
 }
 
