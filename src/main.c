@@ -58,8 +58,8 @@ void setup(void) {
     perspective = mat4_make_perspective(fov, aspect, near, far);
 
     // load_cube_example_mesh();
-    // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
-    load_mesh_from_obj_complex("./assets/f22.obj", 0xFFFF5400);
+    load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
+    // load_mesh_from_obj_complex("./assets/f22.obj", 0xFFFF5400);
 
 }
 
@@ -123,8 +123,8 @@ void update(void) {
 
     // Our movement
     mesh.rotation.x += 0.01;
-    // mesh.rotation.y += 0.01;
-    // mesh.rotation.z += 0.01;
+    mesh.rotation.y += 0.01;
+    mesh.rotation.z += 0.01;
     // mesh.scale.x += 0.002;
     // mesh.scale.y += 0.001;
     // mesh.translation.x += 0.01;
@@ -206,7 +206,7 @@ void update(void) {
         }
         float avg_depth = (transformed_vertices[0].data[2] + transformed_vertices[1].data[2] + transformed_vertices[2].data[2]) / 3;
 
-        float light_factor = vec3_dot_product(normal, light.direction);
+        float light_factor = -vec3_dot_product(normal, light.direction);
         color_t color_shaded = shade_color(mesh_face.color, light_factor);
         
         triangle_t projected_triangle = {
