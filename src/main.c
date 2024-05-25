@@ -61,7 +61,7 @@ void setup(void) {
     perspective = mat4_make_perspective(fov, aspect, near, far);
 
     // Manually load the texture + convert to 32bits
-    mesh_texture = (uint32_t*)REDBRIK_TEXTURE;
+    mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
     texture_width = 64;
     texture_height = 64;
 
@@ -134,7 +134,7 @@ void update(void) {
     // mesh.scale.x += 0.002;
     // mesh.scale.y += 0.001;
     // mesh.translation.x += 0.01;
-    mesh.translation.z = 10.0;
+    mesh.translation.z = 5.0;
     
     // Transformation matrices
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
@@ -281,11 +281,14 @@ void render(void) {
             case TRIANGLE_AND_WIREFRAME:
             draw_triangle(triangle_to_render[i], COLOR_CONTRAST);
             draw_filled_triangle(triangle_to_render[i], triangle_to_render[i].color);
+            break;
             case TEXTURE:
                 draw_textured_triangle(triangle_to_render[i], mesh_texture);
+                break;
             case TEXTURE_AND_WIREFRAME:
                 draw_triangle(triangle_to_render[i], COLOR_CONTRAST);
                 draw_textured_triangle(triangle_to_render[i], mesh_texture);
+                break;
             break;
         }
     }

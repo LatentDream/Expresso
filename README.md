@@ -224,6 +224,13 @@ Representing Texture in memory:
 "Color information in sequence"
 - Will be a buffer in memory, `uint32_t* texture`
 
-
-
-
+Finding the mapping: Barycentric coordinates
+- alpha, beta, gamma: the 3 weights of the 3 points of the triangle
+- `P = alpha * A + beta * B + gamma * C`
+- `alpha + beta + gamma = 1`
+- To find alpha, beta, gamma:
+    - using 3 points, we extand to a parallelogram and find the area
+    - `alpah = area_triangle(PBC) / area_triangle(ABC)`
+    - `alpah = area_parallelogram(PBCD) / area_parallelogram(ABCD)`
+    - `alpah = ||PCxPV|| / ||ACxAB||` (lenght of the cross product)
+- Same for beta and gamma

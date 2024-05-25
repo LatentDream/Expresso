@@ -10,7 +10,7 @@ typedef struct {
 extern int texture_width;
 extern int texture_height;
 
-extern uint8_t REDBRIK_TEXTURE[];
+extern uint8_t REDBRICK_TEXTURE[];
 
 extern uint32_t* mesh_texture;
 
