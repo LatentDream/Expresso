@@ -38,6 +38,24 @@ void order_triangle_by_y(triangle_t* triangle) {
     }
 }
 
+vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p) {
+    vec2_t ac = vec2_sub(c, a);
+    vec2_t ab = vec2_sub(b, a);
+    vec2_t pc = vec2_sub(c, p);
+    vec2_t pb = vec2_sub(b, p);
+    vec2_t ap = vec2_sub(p, a);
+
+    // Using cross-product to find the area of the parallelogram
+    float area_parallelogram_abc = (ac.x * ab.y - ac.y * ab.x); // || AC x AB ||
+    
+    // Barycentric weights
+    float alpha = (pc.x * pb.y - pc.y * pb.x) / area_parallelogram_abc;
+    float beta = (ap.x * ac.y - ap.y * ac.x) / area_parallelogram_abc;
+    float gamma = 1.0 - alpha - beta;
+
+    return (vec3_t){.x = alpha, .y = beta, .z = gamma};
+}
+
 // Draw a triangle ===========================================================
 
 void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color) {
