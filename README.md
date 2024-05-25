@@ -209,4 +209,9 @@ lambda = (z_far / (z_far - z_near)) - (z_far * z_near / (z_far - z_near))
 ### Flat shading
 One of the simplest shading techniques, it calculates the color of each polygon, based on the color of the light source and the color of the polygon itself.
 
+### Other shading
+- Gouraud shading
+- Phong reflexion model
+
+# Texture
 

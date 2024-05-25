@@ -32,6 +32,7 @@ triangle_t* triangle_to_render = NULL;
 culling_mode current_culling_mode = CULLING_ON;
 rendering_mode current_rendering_mode = TRIANGLE_AND_WIREFRAME;
 color_t COLOR_CONTRAST = 0xFF1154BB;
+light_mode current_light_mode = LIGHT_ON;
 mat4_t perspective;
 
 
@@ -92,6 +93,8 @@ void process_input(void) {
                 current_rendering_mode = TRIANGLE;
             if (event.key.keysym.sym == SDLK_o)
                 current_rendering_mode = TRIANGLE_AND_WIREFRAME;
+            if (event.key.keysym.sym == SDLK_l)
+                current_light_mode = (current_light_mode + 1) % 2;
             break;
     }
 }
@@ -200,14 +203,20 @@ void update(void) {
             projected_points[j].data[0] *= (window_width / 2);
             projected_points[j].data[1] *= (window_height / 2);
 
+            // Invert the y-axis
+            projected_points[j].data[1] *= -1;
+
             // Translate in the middle of the screen
             projected_points[j].data[0] += window_width / 2;
             projected_points[j].data[1] += window_height / 2;
         }
         float avg_depth = (transformed_vertices[0].data[2] + transformed_vertices[1].data[2] + transformed_vertices[2].data[2]) / 3;
 
-        float light_factor = -vec3_dot_product(normal, light.direction);
-        color_t color_shaded = shade_color(mesh_face.color, light_factor);
+        color_t color_shaded  = mesh_face.color;
+        if (current_light_mode == LIGHT_ON) {
+            float light_factor = -vec3_dot_product(normal, light.direction);
+            color_shaded = shade_color(mesh_face.color, light_factor);
+        }
         
         triangle_t projected_triangle = {
             .avg_depth = avg_depth,
