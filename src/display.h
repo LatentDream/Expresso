@@ -10,7 +10,13 @@
 #define FPS 30
 #define FRAME_TARGET_TIME (1000.0 / FPS)
 
-typedef enum { WIREFRAME, WIREFRAME_AND_VERTEX, TRIANGLE, TRIANGLE_AND_WIREFRAME } rendering_mode;
+typedef enum { WIREFRAME,
+    WIREFRAME_AND_VERTEX,
+    TRIANGLE,
+    TRIANGLE_AND_WIREFRAME, 
+    TEXTURE,
+    TEXTURE_AND_WIREFRAME,
+} rendering_mode;
 typedef enum { CULLING_ON, CULLING_OFF } culling_mode;
 typedef enum { LIGHT_ON, LIGHT_OFF } light_mode;
 typedef uint32_t color_t;

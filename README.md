@@ -214,4 +214,16 @@ One of the simplest shading techniques, it calculates the color of each polygon,
 - Phong reflexion model
 
 # Texture
+A texture is a bitmap image applied to a 3D model. It can be used to add details to the model that would be difficult to model with geometry.
+
+We can load a png, and "paint" the triangle with the pixel value.
+- Each vertex has a coordinate (UV Coordinate) in the texture space, and we interpolate the pixel value between the 3 points.
+- Texture: UV coord are between 0 and 1
+
+Representing Texture in memory:
+"Color information in sequence"
+- Will be a buffer in memory, `uint32_t* texture`
+
+
+
 

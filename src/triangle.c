@@ -1,6 +1,7 @@
 #include "triangle.h"
 #include "display.h"
 #include "vector.h"
+#include <stdint.h>
 
 void point_swap(vec2_t* point_a, vec2_t* point_b) {
     vec2_t tmp = *point_a;
@@ -76,16 +77,7 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
     }
 }
 
+// Draw a triangle with texture
+void draw_textured_triangle(triangle_t triangle, uint32_t* texture) {
 
-// void array_sort(void* array, int (*compare)(const void*, const void*)) {
-//     if (array != NULL) {
-//         qsort(array, array_length(array), sizeof(array[0]), compare);
-//     }
-// }
-int compare_triangles(const void* a, const void* b) {
-    triangle_t* triangle_a = (triangle_t*)a;
-    triangle_t* triangle_b = (triangle_t*)b;
-    float const avg_depth_a = triangle_a->avg_depth;
-    float const avg_depth_b = triangle_b->avg_depth;
-    return avg_depth_a < avg_depth_b;
 }

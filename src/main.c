@@ -1,5 +1,6 @@
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_timer.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -7,6 +8,7 @@
 #include "display.h"
 #include "light.h"
 #include "matrix.h"
+#include "texture.h"
 #include "vector.h"
 #include "mesh.h"
 #include "triangle.h"
@@ -58,8 +60,14 @@ void setup(void) {
     float far = 100.0;
     perspective = mat4_make_perspective(fov, aspect, near, far);
 
-    // load_cube_example_mesh();
-    load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
+    // Manually load the texture + convert to 32bits
+    mesh_texture = (uint32_t*)REDBRIK_TEXTURE;
+    texture_width = 64;
+    texture_height = 64;
+
+    load_cube_example_mesh();
+
+    // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
     // load_mesh_from_obj_complex("./assets/f22.obj", 0xFFFF5400);
 
 }
@@ -93,6 +101,10 @@ void process_input(void) {
                 current_rendering_mode = TRIANGLE;
             if (event.key.keysym.sym == SDLK_o)
                 current_rendering_mode = TRIANGLE_AND_WIREFRAME;
+            if (event.key.keysym.sym == SDLK_t)
+                current_rendering_mode = TEXTURE;
+            if (event.key.keysym.sym == SDLK_g)
+                current_rendering_mode = TEXTURE_AND_WIREFRAME;
             if (event.key.keysym.sym == SDLK_l)
                 current_light_mode = (current_light_mode + 1) % 2;
             break;
@@ -100,15 +112,6 @@ void process_input(void) {
 }
 
 // Update Function =============================================================
-
-/* Function that receives a 3D vector and returns its projection */
-vec2_t project(vec3_t point) {
-    vec2_t projected_point = {
-        .x = (fov_factor * (point.x / point.z)),
-        .y = (fov_factor * (point.y / point.z))
-    };
-    return projected_point;
-}
 
 void update(void) {
     // Limit the tick to the FRAME_TARGET_TIME
@@ -225,6 +228,11 @@ void update(void) {
                 { .x = projected_points[0].data[0], .y = projected_points[0].data[1] },
                 { .x = projected_points[1].data[0], .y = projected_points[1].data[1] },
                 { .x = projected_points[2].data[0], .y = projected_points[2].data[1] }
+            },
+            .tex_coords = {
+                { mesh_face.a_uv.u, mesh_face.a_uv.v },
+                { mesh_face.b_uv.u, mesh_face.b_uv.v },
+                { mesh_face.c_uv.u, mesh_face.c_uv.v },
             }
         };
 
@@ -273,6 +281,11 @@ void render(void) {
             case TRIANGLE_AND_WIREFRAME:
             draw_triangle(triangle_to_render[i], COLOR_CONTRAST);
             draw_filled_triangle(triangle_to_render[i], triangle_to_render[i].color);
+            case TEXTURE:
+                draw_textured_triangle(triangle_to_render[i], mesh_texture);
+            case TEXTURE_AND_WIREFRAME:
+                draw_triangle(triangle_to_render[i], COLOR_CONTRAST);
+                draw_textured_triangle(triangle_to_render[i], mesh_texture);
             break;
         }
     }
