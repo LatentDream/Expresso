@@ -61,7 +61,7 @@ vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p) {
     return weights;
 }
 
-void draw_texel(int x, int y, vec4_t point_a, vec4_t point_b, vec4_t point_c, tex2_t a_uv, tex2_t b_uv, tex2_t c_uv, uint32_t* texture) {
+void draw_texel(int x, int y, vec4_t point_a, vec4_t point_b, vec4_t point_c, tex2_t a_uv_w, tex2_t b_uv_w, tex2_t c_uv_w, uint32_t* texture, vec3_t inverse_w) {
     vec2_t point_p = { x, y };
     vec2_t a = vec2_from_vec4(point_a);
     vec2_t b = vec2_from_vec4(point_b);
@@ -78,11 +78,11 @@ void draw_texel(int x, int y, vec4_t point_a, vec4_t point_b, vec4_t point_c, te
     float interpolated_reciprocal_w;
 
     // Perform the interpolation of all U/w V/w, 1/w values using barycentric weights
-    interpolated_u = (a_uv.u/point_a.data[3]) * alpha + (b_uv.u/point_b.data[3]) * beta + (c_uv.u/point_c.data[3]) * gamma;
-    interpolated_v = (a_uv.v/point_a.data[3]) * alpha + (b_uv.v/point_b.data[3]) * beta + (c_uv.v/point_c.data[3]) * gamma;
+    interpolated_u = (a_uv_w.u) * alpha + (b_uv_w.u) * beta + (c_uv_w.u) * gamma;
+    interpolated_v = (a_uv_w.v) * alpha + (b_uv_w.v) * beta + (c_uv_w.v) * gamma;
 
     // Perform the interpolation of the reciprocal w
-    interpolated_reciprocal_w = (1 / point_a.data[3]) * alpha + (1 / point_b.data[3]) * beta + (1 / point_c.data[3]) * gamma;
+    interpolated_reciprocal_w = inverse_w.x * alpha + inverse_w.y * beta + inverse_w.z * gamma;
 
     // Divide the interpolated U and V by the interpolated reciprocal w
     interpolated_u /= interpolated_reciprocal_w;
@@ -206,6 +206,11 @@ void draw_textured_triangle(triangle_t triangle, uint32_t* texture) {
     vec4_t point_b = triangle.points[1];
     vec4_t point_c = triangle.points[2];
 
+    tex2_t a_uv_w = { .u = a_uv.u / point_a.data[3], .v = a_uv.v / point_a.data[3] };
+    tex2_t b_uv_w = { .u = b_uv.u / point_b.data[3], .v = b_uv.v / point_b.data[3] };
+    tex2_t c_uv_w = { .u = c_uv.u / point_c.data[3], .v = c_uv.v / point_c.data[3] };
+    vec3_t inverse_w = { .x = 1 / point_a.data[3], .y = 1 / point_b.data[3], .z = 1 / point_c.data[3] };
+
     // Render the upper part of the triangle
     // =====================================
     float inv_slope_1 = 0;
@@ -222,7 +227,7 @@ void draw_textured_triangle(triangle_t triangle, uint32_t* texture) {
             }
 
             for (int x = x_start; x <= x_end; x++) {
-                draw_texel(x, y, point_a, point_b, point_c, a_uv, b_uv, c_uv, texture);
+                draw_texel(x, y, point_a, point_b, point_c, a_uv_w, b_uv_w, c_uv_w, texture, inverse_w);
             }
         }
     }
@@ -246,7 +251,7 @@ void draw_textured_triangle(triangle_t triangle, uint32_t* texture) {
 
             for (int x = x_start; x < x_end; x++) {
                 // Draw our pixel with the color that comes from the texture
-                draw_texel(x, y, point_a, point_b, point_c, a_uv, b_uv, c_uv, texture);
+                draw_texel(x, y, point_a, point_b, point_c, a_uv_w, b_uv_w, c_uv_w, texture, inverse_w);
             }
         }
     }
