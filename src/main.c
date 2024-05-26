@@ -9,6 +9,7 @@
 #include "light.h"
 #include "matrix.h"
 #include "texture.h"
+#include "upng.h"
 #include "vector.h"
 #include "mesh.h"
 #include "triangle.h"
@@ -81,6 +82,7 @@ void free_ressources(void) {
     free(color_buffer);
     array_free(mesh.faces);
     array_free(mesh.vertices);
+    upng_free(upng_texture);
 }
 
 // Process Input Function ======================================================
