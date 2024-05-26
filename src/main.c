@@ -47,7 +47,7 @@ void setup(void) {
     // Creating a SDL texture that is used to display the color buffer
     color_buffer_texture = SDL_CreateTexture(
         renderer,
-        SDL_PIXELFORMAT_ARGB8888,
+        SDL_PIXELFORMAT_RGBA32,
         SDL_TEXTUREACCESS_STREAMING,
         window_width,
         window_height
@@ -60,15 +60,20 @@ void setup(void) {
     float far = 100.0;
     perspective = mat4_make_perspective(fov, aspect, near, far);
 
+    // // CUBE EXMAPLE
+    // // Hardcoded cube
     // Manually load the texture + convert to 32bits
-    mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
-    texture_width = 64;
-    texture_height = 64;
-
+    // mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
+    // texture_width = 64;
+    // texture_height = 64;
     load_cube_example_mesh();
+    load_png_texture_data("./assets/cube.png");
 
+    // Real 3D models
+    // load_mesh_from_obj_complex("./assets/cube.obj", 0xFFFF5400);
     // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
     // load_mesh_from_obj_complex("./assets/f22.obj", 0xFFFF5400);
+
 
 }
 
