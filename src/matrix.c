@@ -88,7 +88,6 @@ vec4_t mat4_mul_vec4_project(mat4_t mat_proj, vec4_t v) {
         result.data[0] /= result.data[3];
         result.data[1] /= result.data[3];
         result.data[2] /= result.data[3];
-        result.data[3] = 1.0f;
     }
     return result;
 }

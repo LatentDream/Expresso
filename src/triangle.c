@@ -1,5 +1,6 @@
 #include "triangle.h"
 #include "display.h"
+#include "texture.h"
 #include "vector.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -60,17 +61,32 @@ vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p) {
     return weights;
 }
 
-void draw_texel(int x, int y, vec2_t point_a, vec2_t point_b, vec2_t point_c, float u0, float v0, float u1, float v1, float u2, float v2, uint32_t* texture) {
+void draw_texel(int x, int y, vec4_t point_a, vec4_t point_b, vec4_t point_c, tex2_t a_uv, tex2_t b_uv, tex2_t c_uv, uint32_t* texture) {
     vec2_t point_p = { x, y };
-    vec3_t weights = barycentric_weights(point_a, point_b, point_c, point_p);
+    vec2_t a = vec2_from_vec4(point_a);
+    vec2_t b = vec2_from_vec4(point_b);
+    vec2_t c = vec2_from_vec4(point_c);
+
+    vec3_t weights = barycentric_weights(a, b, c, point_p);
 
     float alpha = weights.x;
     float beta = weights.y;
     float gamma = weights.z;
 
-    // Perform the interpolation of all U and V values using barycentric weights
-    float interpolated_u = (u0) * alpha + (u1) * beta + (u2) * gamma;
-    float interpolated_v = (v0) * alpha + (v1) * beta + (v2) * gamma;
+    float interpolated_u;
+    float interpolated_v;
+    float interpolated_reciprocal_w;
+
+    // Perform the interpolation of all U/w V/w, 1/w values using barycentric weights
+    interpolated_u = (a_uv.u/point_a.data[3]) * alpha + (b_uv.u/point_b.data[3]) * beta + (c_uv.u/point_c.data[3]) * gamma;
+    interpolated_v = (a_uv.v/point_a.data[3]) * alpha + (b_uv.v/point_b.data[3]) * beta + (c_uv.v/point_c.data[3]) * gamma;
+
+    // Perform the interpolation of the reciprocal w
+    interpolated_reciprocal_w = (1 / point_a.data[3]) * alpha + (1 / point_b.data[3]) * beta + (1 / point_c.data[3]) * gamma;
+
+    // Divide the interpolated U and V by the interpolated reciprocal w
+    interpolated_u /= interpolated_reciprocal_w;
+    interpolated_v /= interpolated_reciprocal_w;
 
     // Map the UV coordinate to the full texture width and height
     int tex_x = abs((int)(interpolated_u * texture_width));
@@ -177,24 +193,18 @@ void draw_textured_triangle(triangle_t triangle, uint32_t* texture) {
     // Extract the coordinates so its easier to work with
     int x0 = triangle.points[0].data[0];
     int y0 = triangle.points[0].data[1];
-    int z0 = triangle.points[0].data[2];
     int x1 = triangle.points[1].data[0];
     int y1 = triangle.points[1].data[1];
-    int z1 = triangle.points[1].data[2];
     int x2 = triangle.points[2].data[0];
     int y2 = triangle.points[2].data[1];
-    int z2 = triangle.points[2].data[2];
-    float u0 = triangle.tex_coords[0].u;
-    float v0 = triangle.tex_coords[0].v;
-    float u1 = triangle.tex_coords[1].u;
-    float v1 = triangle.tex_coords[1].v;
-    float u2 = triangle.tex_coords[2].u;
-    float v2 = triangle.tex_coords[2].v;
+    tex2_t a_uv = triangle.tex_coords[0];
+    tex2_t b_uv = triangle.tex_coords[1];
+    tex2_t c_uv = triangle.tex_coords[2];
 
     // Vector points
-    vec2_t point_a = {.x = x0, .y = y0};
-    vec2_t point_b = {.x = x1, .y = y1};
-    vec2_t point_c = {.x = x2, .y = y2};
+    vec4_t point_a = triangle.points[0];
+    vec4_t point_b = triangle.points[1];
+    vec4_t point_c = triangle.points[2];
 
     // Render the upper part of the triangle
     // =====================================
@@ -212,7 +222,7 @@ void draw_textured_triangle(triangle_t triangle, uint32_t* texture) {
             }
 
             for (int x = x_start; x <= x_end; x++) {
-                draw_texel(x, y, point_a, point_b, point_c, u0, v0, u1, v1, u2, v2, texture);
+                draw_texel(x, y, point_a, point_b, point_c, a_uv, b_uv, c_uv, texture);
             }
         }
     }
@@ -236,7 +246,7 @@ void draw_textured_triangle(triangle_t triangle, uint32_t* texture) {
 
             for (int x = x_start; x < x_end; x++) {
                 // Draw our pixel with the color that comes from the texture
-                draw_texel(x, y, point_a, point_b, point_c, u0, v0, u1, v1, u2, v2, texture);
+                draw_texel(x, y, point_a, point_b, point_c, a_uv, b_uv, c_uv, texture);
             }
         }
     }

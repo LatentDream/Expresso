@@ -128,9 +128,9 @@ void update(void) {
     triangle_to_render = NULL;
 
     // Our movement
-    mesh.rotation.x += 0.01;
+    // mesh.rotation.x += 0.01;
     mesh.rotation.y += 0.01;
-    mesh.rotation.z += 0.01;
+    // mesh.rotation.z += 0.01;
     // mesh.scale.x += 0.002;
     // mesh.scale.y += 0.001;
     // mesh.translation.x += 0.01;
@@ -202,15 +202,15 @@ void update(void) {
             projected_points[j] = mat4_mul_vec4_project(perspective, transformed_vertices[j]);
 
             // Scale into view
-            projected_points[j].data[0] *= (window_width / 2);
-            projected_points[j].data[1] *= (window_height / 2);
+            projected_points[j].data[0] *= ((float)window_width / 2);
+            projected_points[j].data[1] *= ((float)window_height / 2);
 
             // Invert the y-axis
             projected_points[j].data[1] *= -1;
 
             // Translate in the middle of the screen
-            projected_points[j].data[0] += window_width / 2;
-            projected_points[j].data[1] += window_height / 2;
+            projected_points[j].data[0] += (float)window_width / 2;
+            projected_points[j].data[1] += (float)window_height / 2;
         }
         float avg_depth = (transformed_vertices[0].data[2] + transformed_vertices[1].data[2] + transformed_vertices[2].data[2]) / 3;
 
