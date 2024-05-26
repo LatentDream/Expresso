@@ -168,7 +168,6 @@ void update(void) {
             transformed_vertices[j] = transformed_vertex;
         }
 
-
         // Utils for Back culling and light shading                   /*     A     */
         vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);    /*    / \    */
         vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);    /*   /   \   */
