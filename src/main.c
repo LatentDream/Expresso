@@ -224,9 +224,9 @@ void update(void) {
             .avg_depth = avg_depth,
             .color = color_shaded,
             .points = {
-                { .x = projected_points[0].data[0], .y = projected_points[0].data[1] },
-                { .x = projected_points[1].data[0], .y = projected_points[1].data[1] },
-                { .x = projected_points[2].data[0], .y = projected_points[2].data[1] }
+                projected_points[0],
+                projected_points[1],
+                projected_points[2]
             },
             .tex_coords = {
                 { mesh_face.a_uv.u, mesh_face.a_uv.v },
@@ -268,7 +268,7 @@ void render(void) {
             case WIREFRAME_AND_VERTEX:
             draw_triangle(triangle_to_render[i], triangle_to_render[i].color);
             for (int j = 0; j < 3; j++) {
-                draw_rec(triangle_to_render[i].points[j].x, triangle_to_render[i].points[j].y, 4, 4, COLOR_CONTRAST);
+                draw_rec(triangle_to_render[i].points[j].data[0], triangle_to_render[i].points[j].data[1], 4, 4, COLOR_CONTRAST);
             }
             break;
             case WIREFRAME:

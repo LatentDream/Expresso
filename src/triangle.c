@@ -6,8 +6,8 @@
 #include <stdlib.h>
 
 // Helper function ============================================================
-void point_swap(vec2_t* point_a, vec2_t* point_b) {
-    vec2_t tmp = *point_a;
+void point_swap(vec4_t* point_a, vec4_t* point_b) {
+    vec4_t tmp = *point_a;
     *point_a = *point_b;
     *point_b = tmp;
 }
@@ -25,15 +25,15 @@ void int_swap(int* a, int* b) {
 }
 
 void order_triangle_by_y(triangle_t* triangle) {
-    if (triangle->points[0].y > triangle->points[1].y) {
+    if (triangle->points[0].data[1] > triangle->points[1].data[1]) {
         point_swap(&triangle->points[0], &triangle->points[1]);
         tex2_swap(&triangle->tex_coords[0], &triangle->tex_coords[1]);
     }
-    if (triangle->points[1].y > triangle->points[2].y) {
+    if (triangle->points[1].data[1] > triangle->points[2].data[1]) {
         point_swap(&triangle->points[1], &triangle->points[2]);
         tex2_swap(&triangle->tex_coords[1], &triangle->tex_coords[2]);
     }
-    if (triangle->points[0].y > triangle->points[1].y) {
+    if (triangle->points[0].data[1] > triangle->points[1].data[1]) {
         point_swap(&triangle->points[0], &triangle->points[1]);
         tex2_swap(&triangle->tex_coords[0], &triangle->tex_coords[1]);
     }
@@ -58,6 +58,28 @@ vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p) {
 
     vec3_t weights = { alpha, beta, gamma };
     return weights;
+}
+
+void draw_texel(int x, int y, vec2_t point_a, vec2_t point_b, vec2_t point_c, float u0, float v0, float u1, float v1, float u2, float v2, uint32_t* texture) {
+    vec2_t point_p = { x, y };
+    vec3_t weights = barycentric_weights(point_a, point_b, point_c, point_p);
+
+    float alpha = weights.x;
+    float beta = weights.y;
+    float gamma = weights.z;
+
+    // Perform the interpolation of all U and V values using barycentric weights
+    float interpolated_u = (u0) * alpha + (u1) * beta + (u2) * gamma;
+    float interpolated_v = (v0) * alpha + (v1) * beta + (v2) * gamma;
+
+    // Map the UV coordinate to the full texture width and height
+    int tex_x = abs((int)(interpolated_u * texture_width));
+    int tex_y = abs((int)(interpolated_v * texture_height));
+    
+    if ((tex_y * texture_width) + tex_x < texture_width * texture_height) {
+        draw_pixel(x, y, texture[(texture_width * tex_y) + tex_x]);
+    }
+
 }
 
 // Draw a triangle ===========================================================
@@ -104,60 +126,64 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
     // Order the triangle
     order_triangle_by_y(&triangle);
 
-    if (triangle.points[1].y == triangle.points[2].y) {
+    if (triangle.points[1].data[1] == triangle.points[2].data[1]) {
         // Draw the flat-bottom triangle
-        fill_flat_bottom_triangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, color);
-    } else if (triangle.points[0].y == triangle.points[1].y) {
+        fill_flat_bottom_triangle(
+            triangle.points[0].data[0],
+            triangle.points[0].data[1],
+            triangle.points[1].data[0],
+            triangle.points[1].data[1], 
+            triangle.points[2].data[0],
+            triangle.points[2].data[1], 
+            color);
+    } else if (triangle.points[0].data[1] == triangle.points[1].data[1]) {
         // Draw the flat-bottom triangle only
-        fill_flat_top_triangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, triangle.points[2].x, triangle.points[2].y, color);
+        fill_flat_top_triangle(
+            triangle.points[0].data[0],
+            triangle.points[0].data[1],
+            triangle.points[1].data[0],
+            triangle.points[1].data[1], 
+            triangle.points[2].data[0],
+            triangle.points[2].data[1], 
+            color);
     } else {
         // Calculate the new vertex (Mx, My) using the triangle similarity
-        int My = triangle.points[1].y;
-        int Mx = ((float)((triangle.points[2].x - triangle.points[0].x) * (triangle.points[1].y - triangle.points[0].y)) / (float)(triangle.points[2].y - triangle.points[0].y)) + triangle.points[0].x;
+        int My = triangle.points[1].data[1];
+        int Mx = ((float)((triangle.points[2].data[0] - triangle.points[0].data[0]) * (triangle.points[1].data[1] - triangle.points[0].data[1])) / (float)(triangle.points[2].data[1] - triangle.points[0].data[1])) + triangle.points[0].data[0];
 
         // Draw the flat-bottom triangle
-        fill_flat_bottom_triangle(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x, triangle.points[1].y, Mx, My, color); 
+        fill_flat_bottom_triangle(
+            triangle.points[0].data[0],
+            triangle.points[0].data[1],
+            triangle.points[1].data[0],
+            triangle.points[1].data[1],
+            Mx, My, color); 
         
         // Draw the flat-top triangle
-        fill_flat_top_triangle(triangle.points[1].x, triangle.points[1].y, Mx, My, triangle.points[2].x, triangle.points[2].y, color); 
+        fill_flat_top_triangle(
+            triangle.points[1].data[0],
+            triangle.points[1].data[1],
+            Mx, My,
+            triangle.points[2].data[0],
+            triangle.points[2].data[1],
+            color); 
     }
 }
-
-void draw_texel(int x, int y, vec2_t point_a, vec2_t point_b, vec2_t point_c, float u0, float v0, float u1, float v1, float u2, float v2, uint32_t* texture) {
-    vec2_t point_p = { x, y };
-    vec3_t weights = barycentric_weights(point_a, point_b, point_c, point_p);
-
-    float alpha = weights.x;
-    float beta = weights.y;
-    float gamma = weights.z;
-
-    // Perform the interpolation of all U and V values using barycentric weights
-    float interpolated_u = (u0) * alpha + (u1) * beta + (u2) * gamma;
-    float interpolated_v = (v0) * alpha + (v1) * beta + (v2) * gamma;
-
-    // Map the UV coordinate to the full texture width and height
-    int tex_x = abs((int)(interpolated_u * texture_width));
-    int tex_y = abs((int)(interpolated_v * texture_height));
-    
-    if ((tex_y * texture_width) + tex_x < texture_width * texture_height) {
-        draw_pixel(x, y, texture[(texture_width * tex_y) + tex_x]);
-    }
-
-}
-
-
 
 // Draw a triangle with texture
 void draw_textured_triangle(triangle_t triangle, uint32_t* texture) {
 
     order_triangle_by_y(&triangle);
     // Extract the coordinates so its easier to work with
-    int x0 = triangle.points[0].x;
-    int y0 = triangle.points[0].y;
-    int x1 = triangle.points[1].x;
-    int y1 = triangle.points[1].y;
-    int x2 = triangle.points[2].x;
-    int y2 = triangle.points[2].y;
+    int x0 = triangle.points[0].data[0];
+    int y0 = triangle.points[0].data[1];
+    int z0 = triangle.points[0].data[2];
+    int x1 = triangle.points[1].data[0];
+    int y1 = triangle.points[1].data[1];
+    int z1 = triangle.points[1].data[2];
+    int x2 = triangle.points[2].data[0];
+    int y2 = triangle.points[2].data[1];
+    int z2 = triangle.points[2].data[2];
     float u0 = triangle.tex_coords[0].u;
     float v0 = triangle.tex_coords[0].v;
     float u1 = triangle.tex_coords[1].u;

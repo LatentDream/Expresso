@@ -135,7 +135,9 @@ void draw_line(vec2_t start, vec2_t end, color_t color) {
 
 void draw_triangle(triangle_t triangle, color_t color) {
     for (int v = 0; v < 3; v++) {
-        draw_line(triangle.points[(v)%3], triangle.points[(v+1)%3], color);
+        vec2_t start = { .x = triangle.points[v].data[0], .y = triangle.points[v].data[1] };
+        vec2_t end = { .x = triangle.points[(v+1)%3].data[0], .y = triangle.points[(v+1)%3].data[1] };
+        draw_line(start, end, color);
     }
 }
 
