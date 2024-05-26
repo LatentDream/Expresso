@@ -128,9 +128,9 @@ void update(void) {
     triangle_to_render = NULL;
 
     // Our movement
-    // mesh.rotation.x += 0.01;
+    mesh.rotation.x += 0.01;
     mesh.rotation.y += 0.01;
-    // mesh.rotation.z += 0.01;
+    mesh.rotation.z += 0.01;
     // mesh.scale.x += 0.002;
     // mesh.scale.y += 0.001;
     // mesh.translation.x += 0.01;
