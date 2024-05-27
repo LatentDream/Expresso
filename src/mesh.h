@@ -26,6 +26,6 @@ extern mesh_t mesh;
 
 void load_cube_example_mesh(void);
 void load_mesh_from_obj_simple(const char* filename, color_t color);
-void load_mesh_from_obj_complex(char* filename, color_t color);
+void load_mesh_and_texture_from_obj(char* filename, color_t color);
 
 #endif // !MESH_H

@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "array.h"
 #include "display.h"
+#include "texture.h"
 #include "vector.h"
 #include <stdio.h>
 #include <string.h>
@@ -78,10 +79,12 @@ void load_mesh_from_obj_simple(const char* filename, color_t color) {
 
 }
 
-void load_mesh_from_obj_complex(char* filename, color_t color) {
+void load_mesh_and_texture_from_obj(char* filename, color_t color) {
     FILE* file;
     file = fopen(filename, "r");
     char line[1024];
+
+    tex2_t* texcoords = NULL;
 
     while (fgets(line, 1024, file)) {
         // Vertex information
@@ -90,6 +93,15 @@ void load_mesh_from_obj_complex(char* filename, color_t color) {
             sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
             array_push(mesh.vertices, vertex);
         }
+
+        // Texture information
+        if (strncmp(line, "vt ", 3) == 0) {
+            tex2_t texcoord;
+            sscanf(line, "vt %f %f", &texcoord.u, &texcoord.v);
+            texcoord.v = 1.0 - texcoord.v;
+            array_push(texcoords, texcoord);
+        }
+
         // Face information
         if (strncmp(line, "f ", 2) == 0) {
             int vertex_indices[3];
@@ -102,12 +114,17 @@ void load_mesh_from_obj_complex(char* filename, color_t color) {
                 &vertex_indices[2], &texture_indices[2], &normal_indices[2]
             ); 
             face_t face = {
-                .a = vertex_indices[0],
-                .b = vertex_indices[1],
-                .c = vertex_indices[2],
+                .a = vertex_indices[0] - 1,
+                .b = vertex_indices[1] - 1,
+                .c = vertex_indices[2] - 1,
+                .a_uv = texcoords[texture_indices[0]-1],
+                .b_uv = texcoords[texture_indices[1]-1],
+                .c_uv = texcoords[texture_indices[2]-1],
                 .color = color
             };
             array_push(mesh.faces, face);
         }
     }
+
+    array_free(texcoords);
 }

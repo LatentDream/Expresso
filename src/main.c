@@ -67,13 +67,13 @@ void setup(void) {
     // mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
     // texture_width = 64;
     // texture_height = 64;
-    load_cube_example_mesh();
+    // load_cube_example_mesh();
     load_png_texture_data("./assets/cube.png");
 
     // Real 3D models
-    // load_mesh_from_obj_complex("./assets/cube.obj", 0xFFFF5400);
     // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
-    // load_mesh_from_obj_complex("./assets/f22.obj", 0xFFFF5400);
+    load_mesh_and_texture_from_obj("./assets/cube.obj", 0xFFFF5400);
+    // load_mesh_and_texture_from_obj("./assets/f22.obj", 0xFFFF5400);
 
 
 }
@@ -162,9 +162,9 @@ void update(void) {
         face_t mesh_face = mesh.faces[i];
 
         vec3_t face_vertices[3];
-        face_vertices[0] = mesh.vertices[mesh_face.a - 1];
-        face_vertices[1] = mesh.vertices[mesh_face.b - 1];
-        face_vertices[2] = mesh.vertices[mesh_face.c - 1];
+        face_vertices[0] = mesh.vertices[mesh_face.a];
+        face_vertices[1] = mesh.vertices[mesh_face.b];
+        face_vertices[2] = mesh.vertices[mesh_face.c];
 
         vec4_t transformed_vertices[3];
 
