@@ -67,23 +67,21 @@ void setup(void) {
     float far = 100.0;
     perspective = mat4_make_perspective(fov, aspect, near, far);
 
-    // // CUBE EXMAPLE
-    // // Hardcoded cube
-    // Manually load the texture + convert to 32bits
-    // mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
-    // texture_width = 64;
-    // texture_height = 64;
-    // load_cube_example_mesh();
-    // load_png_texture_data("./assets/cube.png");
+    // char* filename = "./assets/f22";
+    // char* filename = "./assets/drone";
+    // char* filename = "./assets/f117";
+    char* filename = "./assets/efa";
+    // char* filename = "./assets/crab";
+    // char* filename = "./assets/cube";
 
-    // Real 3D models
-    // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
-    // load_mesh_and_texture_from_obj("./assets/cube.obj", 0xFFFF5400);
+    color_t color = 0xFFFF5400;
+    char* obj_filename = malloc(strlen(filename) + 5);
+    char* png_filename = malloc(strlen(filename) + 5);
+    sprintf(obj_filename, "%s.obj", filename);
+    sprintf(png_filename, "%s.png", filename);
+    load_mesh_and_texture_from_obj(obj_filename, color);
+    load_png_texture_data(png_filename);
 
-    load_mesh_and_texture_from_obj("./assets/f22.obj", 0xFFFF5400);
-    load_png_texture_data("./assets/f22.png");
-    // load_mesh_and_texture_from_obj("./assets/drone.obj", 0xFFFF5400);
-    // load_png_texture_data("./assets/drone.png");
 }
 
 void free_ressources(void) {
