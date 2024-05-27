@@ -1,6 +1,5 @@
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_timer.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -68,14 +67,13 @@ void setup(void) {
     // texture_width = 64;
     // texture_height = 64;
     // load_cube_example_mesh();
-    load_png_texture_data("./assets/cube.png");
+    // load_png_texture_data("./assets/cube.png");
 
     // Real 3D models
     // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
-    load_mesh_and_texture_from_obj("./assets/cube.obj", 0xFFFF5400);
-    // load_mesh_and_texture_from_obj("./assets/f22.obj", 0xFFFF5400);
-
-
+    // load_mesh_and_texture_from_obj("./assets/cube.obj", 0xFFFF5400);
+    load_mesh_and_texture_from_obj("./assets/f22.obj", 0xFFFF5400);
+    load_png_texture_data("./assets/f22.png");
 }
 
 void free_ressources(void) {
@@ -219,17 +217,18 @@ void update(void) {
             projected_points[j].data[0] += (float)window_width / 2;
             projected_points[j].data[1] += (float)window_height / 2;
         }
+
         float avg_depth = (transformed_vertices[0].data[2] + transformed_vertices[1].data[2] + transformed_vertices[2].data[2]) / 3;
 
-        color_t color_shaded  = mesh_face.color;
+        float light_factor = 1.0;
         if (current_light_mode == LIGHT_ON) {
-            float light_factor = -vec3_dot_product(normal, light.direction);
-            color_shaded = shade_color(mesh_face.color, light_factor);
+            light_factor = -vec3_dot_product(normal, light.direction);
         }
         
         triangle_t projected_triangle = {
             .avg_depth = avg_depth,
-            .color = color_shaded,
+            .color = mesh_face.color,
+            .light_intensity = light_factor,
             .points = {
                 projected_points[0],
                 projected_points[1],

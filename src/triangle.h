@@ -16,6 +16,7 @@ typedef struct {
     tex2_t tex_coords[3];
     uint32_t color;
     float avg_depth;     // Expensibe ? TODO
+    float light_intensity;
 } triangle_t;
 
 void draw_filled_triangle(triangle_t triangle, uint32_t color);

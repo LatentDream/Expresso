@@ -1,5 +1,6 @@
 #include "triangle.h"
 #include "display.h"
+#include "light.h"
 #include "texture.h"
 #include "vector.h"
 #include <stdint.h>
@@ -61,7 +62,7 @@ vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p) {
     return weights;
 }
 
-void draw_texel(int x, int y, vec4_t point_a, vec4_t point_b, vec4_t point_c, tex2_t a_uv_w, tex2_t b_uv_w, tex2_t c_uv_w, uint32_t* texture, vec3_t inverse_w) {
+void draw_texel(int x, int y, vec4_t point_a, vec4_t point_b, vec4_t point_c, tex2_t a_uv_w, tex2_t b_uv_w, tex2_t c_uv_w, uint32_t* texture, vec3_t inverse_w, float light_intensity) {
     vec2_t point_p = { x, y };
     vec2_t a = vec2_from_vec4(point_a);
     vec2_t b = vec2_from_vec4(point_b);
@@ -93,7 +94,9 @@ void draw_texel(int x, int y, vec4_t point_a, vec4_t point_b, vec4_t point_c, te
     int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
     
     if ((tex_y * texture_width) + tex_x < texture_width * texture_height) {
-        draw_pixel(x, y, texture[(texture_width * tex_y) + tex_x]);
+        color_t color = texture[(tex_y * texture_width) + tex_x];
+        color = shade_color(color, light_intensity);
+        draw_pixel(x, y, color);
     }
 }
 
@@ -140,6 +143,7 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, colo
 void draw_filled_triangle(triangle_t triangle, color_t color) {
     // Order the triangle
     order_triangle_by_y(&triangle);
+    color = shade_color(color, triangle.light_intensity);
 
     if (triangle.points[1].data[1] == triangle.points[2].data[1]) {
         // Draw the flat-bottom triangle
@@ -226,7 +230,7 @@ void draw_textured_triangle(triangle_t triangle, uint32_t* texture) {
             }
 
             for (int x = x_start; x <= x_end; x++) {
-                draw_texel(x, y, point_a, point_b, point_c, a_uv_w, b_uv_w, c_uv_w, texture, inverse_w);
+                draw_texel(x, y, point_a, point_b, point_c, a_uv_w, b_uv_w, c_uv_w, texture, inverse_w, triangle.light_intensity);
             }
         }
     }
@@ -250,7 +254,7 @@ void draw_textured_triangle(triangle_t triangle, uint32_t* texture) {
 
             for (int x = x_start; x < x_end; x++) {
                 // Draw our pixel with the color that comes from the texture
-                draw_texel(x, y, point_a, point_b, point_c, a_uv_w, b_uv_w, c_uv_w, texture, inverse_w);
+                draw_texel(x, y, point_a, point_b, point_c, a_uv_w, b_uv_w, c_uv_w, texture, inverse_w, triangle.light_intensity);
             }
         }
     }
