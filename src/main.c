@@ -27,10 +27,16 @@ SDL_Renderer* renderer = NULL;
 bool is_running = false;
 int previous_frame_time = 0;
 
-// other -- Meshes
+// Camera
 #define fov_factor 485
 vec3_t camera_position = { .x = 0, .y = 0, .z = -5 };
-triangle_t* triangle_to_render = NULL;
+
+// Meshes
+#define MAX_TRIANGLES_PER_MESH 20000  // Might not be the best way to handle this but it's a start
+triangle_t triangle_to_render[MAX_TRIANGLES_PER_MESH];
+int num_triangles_to_render = 0;
+
+// Modes
 culling_mode current_culling_mode = CULLING_ON;
 rendering_mode current_rendering_mode = TRIANGLE_AND_WIREFRAME;
 color_t COLOR_CONTRAST = 0xFF1154BB;
@@ -73,8 +79,11 @@ void setup(void) {
     // Real 3D models
     // load_mesh_from_obj_simple("./assets/teapot.obj", 0xFFFF5400);
     // load_mesh_and_texture_from_obj("./assets/cube.obj", 0xFFFF5400);
+
     load_mesh_and_texture_from_obj("./assets/f22.obj", 0xFFFF5400);
     load_png_texture_data("./assets/f22.png");
+    // load_mesh_and_texture_from_obj("./assets/drone.obj", 0xFFFF5400);
+    // load_png_texture_data("./assets/drone.png");
 }
 
 void free_ressources(void) {
@@ -132,7 +141,7 @@ void update(void) {
     previous_frame_time = SDL_GetTicks();
 
     // Init or render array
-    triangle_to_render = NULL;
+    num_triangles_to_render = 0;
 
     // Our movement
     mesh.rotation.x += 0.01;
@@ -241,7 +250,7 @@ void update(void) {
         };
 
         // Save the projected tri. for the renderer
-        array_push(triangle_to_render, projected_triangle);
+        triangle_to_render[num_triangles_to_render++] = projected_triangle;
     }
 
 }
@@ -255,8 +264,7 @@ void render(void) {
     draw_ref();
 
     // Render all the triangle that need to be renderer
-    int num_triangles = array_length(triangle_to_render);
-    for (int i = 0; i < num_triangles; i++) {
+    for (int i = 0; i < num_triangles_to_render; i++) {
         switch (current_rendering_mode) {
             case WIREFRAME_AND_VERTEX:
             draw_triangle(triangle_to_render[i], triangle_to_render[i].color);
@@ -288,7 +296,6 @@ void render(void) {
     // Render
     render_color_buffer();
     SDL_RenderPresent(renderer);
-    array_free(triangle_to_render);
 }
 
 // Main Function ===============================================================

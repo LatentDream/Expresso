@@ -72,7 +72,11 @@ void load_mesh_from_obj_simple(const char* filename, color_t color) {
             face_t face;
             sscanf(line, "f %d %d %d\n", &face.a, &face.b, &face.c);
             face.color = color;
+            face.a_uv = (tex2_t){ 0, 0 };
+            face.b_uv = (tex2_t){ 0, 0 };
+            face.c_uv = (tex2_t){ 0, 0 };
             array_push(mesh.faces, face);
+
         }
     }
     fclose(file);
