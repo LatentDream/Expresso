@@ -43,6 +43,7 @@ mat4_t perspective;
 void setup(void) {
     // Allocate the required memory in bytes to hold the color buffer
     color_buffer = (color_t*) malloc(sizeof(color_t) * window_width * window_height);
+    z_buffer = (float*) malloc(sizeof(float) * window_width * window_height);
     
     // Creating a SDL texture that is used to display the color buffer
     color_buffer_texture = SDL_CreateTexture(
@@ -78,6 +79,7 @@ void setup(void) {
 
 void free_ressources(void) {
     free(color_buffer);
+    free(z_buffer);
     array_free(mesh.faces);
     array_free(mesh.vertices);
     upng_free(upng_texture);
@@ -134,8 +136,8 @@ void update(void) {
 
     // Our movement
     mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.01;
-    mesh.rotation.z += 0.01;
+    // mesh.rotation.y += 0.01;
+    // mesh.rotation.z += 0.01;
     // mesh.scale.x += 0.002;
     // mesh.scale.y += 0.001;
     // mesh.translation.x += 0.01;
@@ -265,6 +267,7 @@ void render(void) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     clear_color_buffer(0xFF000000);
+    clear_z_buffer();
     draw_ref();
 
     // Render all the triangle that need to be renderer

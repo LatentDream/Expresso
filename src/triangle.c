@@ -89,14 +89,20 @@ void draw_texel(int x, int y, vec4_t point_a, vec4_t point_b, vec4_t point_c, te
     interpolated_u /= interpolated_reciprocal_w;
     interpolated_v /= interpolated_reciprocal_w;
 
-    // Map the UV coordinate to the full texture width and height
+    // Map the UV coordinate to the full texture width and height + clipping if error
     int tex_x = abs((int)(interpolated_u * texture_width)) % texture_width;
     int tex_y = abs((int)(interpolated_v * texture_height)) % texture_height;
     
-    if ((tex_y * texture_width) + tex_x < texture_width * texture_height) {
-        color_t color = texture[(tex_y * texture_width) + tex_x];
-        color = shade_color(color, light_intensity);
-        draw_pixel(x, y, color);
+    // Adjust 1/w value
+    interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
+
+    int position_screen = (y * window_width) + x;
+    int position_texture = (tex_y * texture_width) + tex_x;
+    if (interpolated_reciprocal_w < z_buffer[position_screen]) {
+        // Draw the pixel with the color from the texture
+        draw_pixel(x, y, shade_color(texture[position_texture], light_intensity));
+        // Update the z_buffer for the current pixel
+        z_buffer[position_screen] = interpolated_reciprocal_w;
     }
 }
 

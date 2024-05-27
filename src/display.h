@@ -28,6 +28,7 @@ extern int window_height;
 extern int window_width;
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
+extern float* z_buffer;
 
 // Function ////////////////////////////////////////////////
 bool initialize_window(void);
@@ -40,5 +41,6 @@ void draw_triangle(triangle_t triangle, color_t color);
 void clear_color_buffer(color_t color);
 void render_color_buffer(void);
 void destroy_window(void);
+void clear_z_buffer(void);
 
 #endif // DISPLAY_H
