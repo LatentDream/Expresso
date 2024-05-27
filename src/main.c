@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 #include "array.h"
+#include "camera.h"
 #include "display.h"
 #include "light.h"
 #include "matrix.h"
@@ -26,15 +27,16 @@ SDL_Renderer* renderer = NULL;
 // Event Loop
 bool is_running = false;
 int previous_frame_time = 0;
-
-// Camera
-#define fov_factor 485
-vec3_t camera_position = { .x = 0, .y = 0, .z = -5 };
+float delta_time = 0;
 
 // Meshes
-#define MAX_TRIANGLES_PER_MESH 20000  // Might not be the best way to handle this but it's a start
+#define MAX_TRIANGLES_PER_MESH 20000
 triangle_t triangle_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
+
+// Matrices
+mat4_t view_matrix;
+mat4_t world_matrix;
 
 // Modes
 culling_mode current_culling_mode = CULLING_ON;
@@ -103,8 +105,11 @@ void process_input(void) {
             is_running = false;
             break;
         case SDL_KEYDOWN:
+            // Quit ---------------------------
             if (event.key.keysym.sym == SDLK_ESCAPE)
                 is_running = false;
+
+            // Rendering mode -----------------
             if (event.key.keysym.sym == SDLK_c)
                 current_culling_mode = (current_culling_mode + 1) % 2;
             if (event.key.keysym.sym == SDLK_y)
@@ -119,8 +124,21 @@ void process_input(void) {
                 current_rendering_mode = TEXTURE;
             if (event.key.keysym.sym == SDLK_g)
                 current_rendering_mode = TEXTURE_AND_WIREFRAME;
+
+            // Light mode ---------------------
             if (event.key.keysym.sym == SDLK_l)
                 current_light_mode = (current_light_mode + 1) % 2;
+
+            // Camera movement ----------------
+            // TODO: SDL only allows one key press at a time ?
+            if (event.key.keysym.sym == SDLK_a)
+                camera.position.x += 0.5 * delta_time;
+            if (event.key.keysym.sym == SDLK_d)
+                camera.position.x -= 0.5 * delta_time;
+            if (event.key.keysym.sym == SDLK_w)
+                camera.position.y += 0.1 * delta_time;
+            if (event.key.keysym.sym == SDLK_s)
+                camera.position.y -= 0.1 * delta_time;
             break;
     }
 }
@@ -136,19 +154,24 @@ void update(void) {
     {
         SDL_Delay(time_to_wait);
     }
+    delta_time = (SDL_GetTicks() - previous_frame_time) / 1000.0; // For update game object
     previous_frame_time = SDL_GetTicks();
 
     // Init or render array
     num_triangles_to_render = 0;
 
     // Our movement
-    mesh.rotation.x += 0.01;
-    // mesh.rotation.y += 0.01;
-    // mesh.rotation.z += 0.01;
-    // mesh.scale.x += 0.002;
-    // mesh.scale.y += 0.001;
-    // mesh.translation.x += 0.01;
+    mesh.rotation.x += 0.4 * delta_time;
+    // mesh.rotation.y += 0.2 * delta_time;
+    // mesh.rotation.z += 0.1 * delta_time;
+    // mesh.scale.x += 0.02 * delta_time;
+    // mesh.scale.y += 0.01 * delta_time;
+    // mesh.translation.x += 0.01 * delta_time;
     mesh.translation.z = 5.0;
+
+    // Camera
+    vec3_t target = {0, 0, 10};
+    view_matrix = mat4_look_at(camera.position, target);
     
     // Transformation matrices
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
@@ -157,7 +180,7 @@ void update(void) {
     mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
     mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
     // World matrix
-    mat4_t world_matrix = mat4_identity();
+    world_matrix = mat4_identity();
     world_matrix = mat4_mult(world_matrix, translation_matrix);
     world_matrix = mat4_mult(world_matrix, rotation_matrix_x);
     world_matrix = mat4_mult(world_matrix, rotation_matrix_y);
@@ -179,6 +202,7 @@ void update(void) {
         for (int j = 0; j < 3; j++) {
             vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
             transformed_vertex = mat4_mult_vec4(world_matrix, transformed_vertex);
+            transformed_vertex = mat4_mult_vec4(view_matrix, transformed_vertex);
             transformed_vertices[j] = transformed_vertex;
         }
 
@@ -197,8 +221,10 @@ void update(void) {
         // Normalize the vec
         vec3_normalize(&normal);
 
-        // Vector between the a point in the triangle and the camera origin
-        vec3_t camera_ray = vec3_sub(camera_position, vector_a);
+        // Vector between the a point in the triangle and the origin
+        vec3_t origin = {0, 0, 0};
+        vec3_t camera_ray = vec3_sub(origin, vector_a);
+
         // Verify if the normal and camera are align
         float alignment_with_camera = vec3_dot_product(camera_ray, normal);
         if (current_culling_mode == CULLING_ON) {

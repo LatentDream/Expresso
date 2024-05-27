@@ -16,12 +16,6 @@ typedef struct {
     float data[4];
 } vec4_t;
 
-typedef struct {
-    vec3_t position;
-    vec3_t rotation;
-    float fov_angle;
-} camera_t;
-
 // Vector manipulation functions -------------------------
 // 2D
 

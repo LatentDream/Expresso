@@ -5,18 +5,22 @@
 
 # Expresso
 
-Old school 3D engine.
+Old school 3D engine from scratch.
+
+Started the implementation by following [Pikuma's course on 3D Computer Graphics](https://pikuma.com/courses).
 
 ## Dev Env
 
 ```
 sudo apt install build-essential
 sudo apt install libsdl2-dev
+make
+./bin/{{platform}}/expresso
 ```
 
 ---
 
-## Notes
+## Personnal Notes
 
 
 3D points:
@@ -123,9 +127,9 @@ __Problem__: The order of the face being render is important for the depth.
 __Old solition__: Painters Algorithm, assumption: Z-value is the average of the 3 points.
 __Current solution__: Z-buffering (or depth buffering) -- **Will be done soon**
 
-
 ---
-# Time to speed up things 🚀
+
+# Using matrix to represent 3D transformations
 
 Homogeneous coordinates - 4x4 Matrix
 ```
@@ -205,6 +209,8 @@ lambda = (z_far / (z_far - z_near)) - (z_far * z_near / (z_far - z_near))
 [  0   0    1          0        ]
 ```
 
+---
+
 # Shading
 ### Flat shading
 One of the simplest shading techniques, it calculates the color of each polygon, based on the color of the light source and the color of the polygon itself.
@@ -234,3 +240,50 @@ Finding the mapping: Barycentric coordinates
     - `alpah = area_parallelogram(PBCD) / area_parallelogram(ABCD)`
     - `alpah = ||PCxPV|| / ||ACxAB||` (lenght of the cross product)
 - Same for beta and gamma
+
+
+# Camera
+Models:
+- Look-at camera model (Always look at a target)
+- FPS camera model
+
+## Look-at camera model
+We need a `look_at` function that will create a matrix to rotate the camera to look at a point.
+ → **Will convert the vertices to the camera space**
+
+We need:
+- A `eye` position
+- A `target` position
+
+The transformation consists of 2 steps:
+1. Translate the eye to the origin matrix
+2. Rotate the eye to look at the target (with reverse orientation)
+
+`M_view = M_look_at * M_translate_eye`
+### Translation
+Move the eye to the origin
+```
+[ 1  0  0 -eye_x ]
+[ 0  1  0 -eye_y ]
+[ 0  0  1 -eye_z ]
+[ 0  0  0    1   ]
+```
+### Rotation
+For roation, we must compute forward(z), right(x), and up(y) vectors
+```
+[ x_x y_x z_x 0 ] ^-1
+[ x_y y_y z_y 0 ]
+[ x_z y_z z_z 0 ]     = M_look_at
+[  0   0   0  1 ]
+```
+But we need the inverse. Here we can transpose the matrix because it's an orthogonal matrix.
+
+### Final matrix
+Developing, we can find the final matrix:
+```
+[ x_x x_y x_z -dot(x, eye) ]
+[ y_x y_y y_z -dot(y, eye) ]
+[ z_x z_y z_z -dot(z, eye) ]
+[  0   0   0        1      ]
+```
+
