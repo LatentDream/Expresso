@@ -15,7 +15,6 @@ typedef struct {
     vec4_t points[3];
     tex2_t tex_coords[3];
     uint32_t color;
-    float avg_depth;     // Expensibe ? TODO
     float light_intensity;
 } triangle_t;
 

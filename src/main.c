@@ -220,15 +220,12 @@ void update(void) {
             projected_points[j].data[1] += (float)window_height / 2;
         }
 
-        float avg_depth = (transformed_vertices[0].data[2] + transformed_vertices[1].data[2] + transformed_vertices[2].data[2]) / 3;
-
         float light_factor = 1.0;
         if (current_light_mode == LIGHT_ON) {
             light_factor = -vec3_dot_product(normal, light.direction);
         }
         
         triangle_t projected_triangle = {
-            .avg_depth = avg_depth,
             .color = mesh_face.color,
             .light_intensity = light_factor,
             .points = {
@@ -245,19 +242,6 @@ void update(void) {
 
         // Save the projected tri. for the renderer
         array_push(triangle_to_render, projected_triangle);
-    }
-
-    // Bubble sort: will need to be optimized
-    int num_triangles = array_length(triangle_to_render);
-    for (int i = 0; i < num_triangles; i++) {
-        for (int j = i; j < num_triangles; j++) {
-            if (triangle_to_render[i].avg_depth < triangle_to_render[j].avg_depth) {
-                // Swap the triangles positions in the array
-                triangle_t temp = triangle_to_render[i];
-                triangle_to_render[i] = triangle_to_render[j];
-                triangle_to_render[j] = temp;
-            }
-        }
     }
 
 }
