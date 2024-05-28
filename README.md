@@ -1,6 +1,6 @@
 <!-- Display ./example.png -->
 <p align="center">
-	<img width="400" src="./example.png">
+	<img width="800" src="./demo.png">
 <p align="center">
 
 # Expresso
