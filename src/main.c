@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "array.h"
 #include "camera.h"
+#include "clipping.h"
 #include "display.h"
 #include "light.h"
 #include "matrix.h"
@@ -69,6 +70,8 @@ void setup(void) {
     float near = 0.1;
     float far = 100.0;
     perspective = mat4_make_perspective(fov, aspect, near, far);
+
+    initialize_frustum_planes(fov, near, far);
 
     // char* filename = "./assets/f22";
     // char* filename = "./assets/drone";

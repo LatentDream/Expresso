@@ -293,3 +293,35 @@ We need:
 - direction
 - forward velocity
 - yaw and pitch (rotation)
+
+# Clipping
+We need to clip the triangle that is outside the screen.
+## Frustum
+We need to clip against six planes:
+- Top, Bottom, Left, Right, Near, Far
+The resulting polygon that is produced is a convex polygon. We can clip it against the other planes. **Otherwise, we need to accumulate the clipped polygon**
+
+#### Planes
+
+To find the plane (right as the example):
+
+** Near/Far plane **
+```
+P = {0, 0, z_near}
+P = {0, 0, z_far}
+```
+
+** Side plane **
+
+We have the point P (the camera at {0, 0, 0}) and the normal N from the fov/2 angle.
+```
+# Right plane:
+P = {0, 0, 0}
+n.x = -cos(fov/2)
+n.y = 0
+n.z = sin(fov/2)
+```
+Same for the other planes.
+
+
+
