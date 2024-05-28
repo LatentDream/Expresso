@@ -294,6 +294,8 @@ We need:
 - forward velocity
 - yaw and pitch (rotation)
 
+---
+
 # Clipping
 We need to clip the triangle that is outside the screen.
 ## Frustum
@@ -322,6 +324,13 @@ n.y = 0
 n.z = sin(fov/2)
 ```
 Same for the other planes.
+
+**FYI**
+
+Two side of a plane (P), on, inside or outside:
+- A point (Q) can be __inside__ the plane. `(Q - P) . N > 0`
+- A point (Q) can be __outside__ the plane. `(Q - P) . N < 0`
+- A point (Q) can be __on__ the plane. `(Q - P) . N = 0`
 
 
 
