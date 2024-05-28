@@ -287,3 +287,9 @@ Developing, we can find the final matrix:
 [  0   0   0        1      ]
 ```
 
+## FPS camera model
+We need:
+- position
+- direction
+- forward velocity
+- yaw and pitch (rotation)

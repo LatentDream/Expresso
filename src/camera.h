@@ -6,7 +6,11 @@
 typedef struct {
     vec3_t position;
     vec3_t direction;
+    vec3_t forward_velocity;
+    float  yaw_angle;
 } camera_t;
+
+typedef enum { TARGET, FPS } camera_mode;
 
 extern camera_t camera;
 
