@@ -65,20 +65,22 @@ void setup(void) {
     );
 
     // Init the perspective matrix
-    float fov = 1.047194;  // 60 degrees in radians
-    float aspect = (float)window_height / (float)window_width;
+    float aspecty = (float)window_height / (float)window_width;
+    float aspectx = (float)window_width / (float)window_height;
+    float fovy = 1.047194;  // 60 degrees in radians
+    float fovx = 2 * atan(aspectx * tan(fovy / 2));
     float near = 0.1;
     float far = 100.0;
-    perspective = mat4_make_perspective(fov, aspect, near, far);
+    perspective = mat4_make_perspective(fovy, aspecty, near, far);
 
-    initialize_frustum_planes(fov, near, far);
+    initialize_frustum_planes(fovy, fovx, near, far);
 
     // char* filename = "./assets/f22";
     // char* filename = "./assets/drone";
-    char* filename = "./assets/f117";
+    // char* filename = "./assets/f117";
     // char* filename = "./assets/efa";
     // char* filename = "./assets/crab";
-    // char* filename = "./assets/cube";
+    char* filename = "./assets/cube";
 
     printf("Loading %s\n", filename);
     color_t color = 0xFFFF5400;
