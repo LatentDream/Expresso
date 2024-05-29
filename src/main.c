@@ -75,12 +75,12 @@ void setup(void) {
 
     initialize_frustum_planes(fovy, fovx, near, far);
 
-    // char* filename = "./assets/f22";
+    char* filename = "./assets/f22";
     // char* filename = "./assets/drone";
     // char* filename = "./assets/f117";
     // char* filename = "./assets/efa";
     // char* filename = "./assets/crab";
-    char* filename = "./assets/cube";
+    // char* filename = "./assets/cube";
 
     printf("Loading %s\n", filename);
     color_t color = 0xFFFF5400;
@@ -197,9 +197,9 @@ void update(void) {
     num_triangles_to_render = 0;
 
     // Movement
-    // mesh.rotation.x += 0.4 * delta_time;
-    // mesh.rotation.y += 0.2 * delta_time;
-    // mesh.rotation.z += 0.1 * delta_time;
+    mesh.rotation.x += 0.4 * delta_time;
+    mesh.rotation.y += 0.2 * delta_time;
+    mesh.rotation.z += 0.1 * delta_time;
     // mesh.scale.x += 0.02 * delta_time;
     // mesh.scale.y += 0.01 * delta_time;
     // mesh.translation.x += 0.01 * delta_time;

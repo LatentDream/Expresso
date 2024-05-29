@@ -15,15 +15,28 @@ Started the implementation by following [Pikuma's course on 3D Computer Graphics
 sudo apt install build-essential
 sudo apt install libsdl2-dev
 make
-./bin/{{platform}}/expresso
+./bin/{{platform}}/debug/expresso
 ```
 
 ---
 
-## Personnal Notes
+# 3D Pipeline:
+- **1** Model space
+- **2** World space
+- **3** Camera space
+- **3.5** Backface culling
+- **4** Frustum culling/clipping (GPU do it after the projection usually)
+- **5** Projection
+- **5.5** Perspective divide
+- **6** Image space (NDC)
+- **7** Screen Space
+
+---
+
+# Personnal Notes
 
 
-3D points:
+## 3D points:
 ```
 y
 |
@@ -302,6 +315,9 @@ We need:
 
 # Clipping
 We need to clip the triangle that is outside the screen.
+## Clipping against the screen
+- Modern way to do it
+
 ## Frustum
 We need to clip against six planes:
 - Top, Bottom, Left, Right, Near, Far
