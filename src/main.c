@@ -281,7 +281,10 @@ void update(void) {
         polygon_t polygon = create_polygon_from_triangle(
             vec3_from_vec4(transformed_vertices[0]),
             vec3_from_vec4(transformed_vertices[1]),
-            vec3_from_vec4(transformed_vertices[2])
+            vec3_from_vec4(transformed_vertices[2]),
+            mesh_face.a_uv,
+            mesh_face.b_uv,
+            mesh_face.c_uv
         );
         clip_polygon(&polygon);
         // Clipping: create a triangle from the polygon
@@ -289,6 +292,7 @@ void update(void) {
         int num_clipped_triangles = 0;
         create_triangles_from_polygon(&polygon, clipped_triangles, &num_clipped_triangles);
 
+        // Only render the triangle that are inside the frustum
         for (int t = 0; t < num_clipped_triangles; t++) {
             triangle_t clipped_triangle = clipped_triangles[t];
 
@@ -324,9 +328,9 @@ void update(void) {
                     projected_points[2]
                 },
                 .tex_coords = {
-                    { mesh_face.a_uv.u, mesh_face.a_uv.v },
-                    { mesh_face.b_uv.u, mesh_face.b_uv.v },
-                    { mesh_face.c_uv.u, mesh_face.c_uv.v },
+                    { clipped_triangle.tex_coords[0].u, clipped_triangle.tex_coords[0].v },
+                    { clipped_triangle.tex_coords[1].u, clipped_triangle.tex_coords[1].v },
+                    { clipped_triangle.tex_coords[2].u, clipped_triangle.tex_coords[2].v },
                 }
             };
 

@@ -395,15 +395,15 @@ Technique:
 - Vertices to non-adjectent vertices
 - Point in the middle of the polygon
 - All from the same point:
-    ```
-	Q_0____Q_3
-	/ \    /
-       /   \  /
-     Q_l---Q_2
-    ```
-    So:
-    ```
-    for (int i=0; i < (num_vertices-2); i++)
-	add_triangle(Q_0, Q_i+1, Q_i+2)
-    ```
+```
+    Q_0____Q_3
+    / \    /
+   /   \  /
+ Q_l---Q_2
+```
+So:
+```
+for (int i=0; i < (num_vertices-2); i++)
+    add_triangle(Q_0, Q_i+1, Q_i+2)
+```
 
