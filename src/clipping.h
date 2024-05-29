@@ -16,6 +16,16 @@ typedef struct{
     vec3_t normal;
 } plane_t;
 
+#define MAX_NUM_VERTICES 8 
+typedef struct {
+    vec3_t vertices[MAX_NUM_VERTICES];
+    int num_vertices;
+} polygon_t;
+
+
+polygon_t create_polygon(vec3_t* triangle_vertices);
+void clip_polygon(polygon_t* polygon);
+
 void initialize_frustum_planes(float fov, float z_near, float z_far);
 
 #endif // !CLIPPING_H

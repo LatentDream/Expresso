@@ -332,5 +332,57 @@ Two side of a plane (P), on, inside or outside:
 - A point (Q) can be __outside__ the plane. `(Q - P) . N < 0`
 - A point (Q) can be __on__ the plane. `(Q - P) . N = 0`
 
+### Intersecting a plane
+Goal: determine if a line intersects a plane.
+__From: Kenneth I. Joy | On-Line Computer Graphics Notes | Clipping__
+```
+ Q_1       N
+  \        ^
+   \       |
+----I------P-----   <- Place
+     \
+      Q_2
+       Triangle
 
+I = Q_1 + t(Q_2 - Q_1)
+- t is the factor to find the intersection point [0, 1]
+```
+To find the intersection point, we can do:
+```
+      I = Q_1 + t(Q_2 - Q_1)
+  (I-P) = (Q_1-P) + t((Q_2-P) - (Q_1-P))
+n.(I-P) = n.(Q_1-P) + t(n.(Q_2-P) - n.(Q_1-P))
+-------   ---------     ---------   ---------
+   0       Dot_Q_1       Dot_Q_2     Dot_Q_1
+
+   0    =  Dot_Q_1 +  t( Dot_Q_2 - Dot_Q_1 )
+   t    = -Dot_Q_1 / (Dot_Q_2 - Dot_Q_1)
+   t    =  Dot_Q_1 / (Dot_Q_1 - Dot_Q_2)
+```
+Once we have the intersection point, we can clip the triangle,
+**But we end up with a polygon :(** We need to triangulate it!
+
+But before, algo to clip a polygon against a plane:
+```
+	      ----Q_3
+        Q_2---       \
+    ^   |             Q_4
+    |   |            /
+----P---I_1---------I_2-
+        |          /
+	Q_1------Q_5
+
+| Inside | Outside |
++--------+---------+
+|   I_1  |   Q_1   |
+|        |   I_2   |
+|   Q_2  |         |
+|   Q_3  |         |
+|   Q_4  |         |
+|   I_2  |         |
+|        |   I_2   |
+|        |   Q_5   |  
+```
+We end up with two list, one for points for inside and one for outside.
+- In this case, the resulting polygone is the inside one: `{I_1, Q_2, Q_3, Q_4, I_2}`
 

@@ -1,5 +1,7 @@
 #include "clipping.h"
 #include "vector.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 plane_t frustplanes[6] = {0};
@@ -27,5 +29,20 @@ void initialize_frustum_planes(float fov, float z_near, float z_far) {
 
     frustplanes[FAR_FRUSTUM_PLANE].point = (vec3_t) {0, 0, z_far};
     frustplanes[FAR_FRUSTUM_PLANE].normal = (vec3_t) {0, 0, -1};
+}
+
+
+void clip_polygon_against_plane(polygon_t* polygon, int plane_index) {
+    printf("[ERROR] Clipping polygon against plane: unimplemented\n");
+    exit(1);
+}
+
+void clip_polygon(polygon_t* polygon) {
+    clip_polygon_against_plane(polygon, LEFT_FRUSTUM_PLANE);
+    clip_polygon_against_plane(polygon, RIGHT_FRUSTUM_PLANE);
+    clip_polygon_against_plane(polygon, TOP_FRUSTUM_PLANE);
+    clip_polygon_against_plane(polygon, BOTTOM_FRUSTUM_PLANE);
+    clip_polygon_against_plane(polygon, NEAR_FRUSTUM_PLANE);
+    clip_polygon_against_plane(polygon, FAR_FRUSTUM_PLANE);
 }
 
