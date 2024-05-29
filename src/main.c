@@ -75,11 +75,12 @@ void setup(void) {
 
     // char* filename = "./assets/f22";
     // char* filename = "./assets/drone";
-    // char* filename = "./assets/f117";
+    char* filename = "./assets/f117";
     // char* filename = "./assets/efa";
     // char* filename = "./assets/crab";
-    char* filename = "./assets/cube";
+    // char* filename = "./assets/cube";
 
+    printf("Loading %s\n", filename);
     color_t color = 0xFFFF5400;
     char* obj_filename = malloc(strlen(filename) + 5);
     char* png_filename = malloc(strlen(filename) + 5);
@@ -227,7 +228,6 @@ void update(void) {
 
     // Loop over the triangle faces
     for (int i = 0; i < array_length(mesh.faces); i++) {
-        if (i != 4) continue;
 
         face_t mesh_face = mesh.faces[i];
 
@@ -282,48 +282,55 @@ void update(void) {
             vec3_from_vec4(transformed_vertices[2])
         );
         clip_polygon(&polygon);
-        // TODO: break the polygon into triangles
+        // Clipping: create a triangle from the polygon
+        triangle_t clipped_triangles[MAX_NUM_TRIANGLES];
+        int num_clipped_triangles = 0;
+        create_triangles_from_polygon(&polygon, clipped_triangles, &num_clipped_triangles);
 
-        vec4_t projected_points[3];
-        // Project the point in 2D
-        for (int j = 0; j < 3; j++) {
+        for (int t = 0; t < num_clipped_triangles; t++) {
+            triangle_t clipped_triangle = clipped_triangles[t];
+
+            vec4_t projected_points[3];
             // Project the point in 2D
-            projected_points[j] = mat4_mul_vec4_project(perspective, transformed_vertices[j]);
+            for (int j = 0; j < 3; j++) {
+                // Project the point in 2D
+                projected_points[j] = mat4_mul_vec4_project(perspective, clipped_triangle.points[j]);
 
-            // Scale into view
-            projected_points[j].data[0] *= ((float)window_width / 2);
-            projected_points[j].data[1] *= ((float)window_height / 2);
+                // Scale into view
+                projected_points[j].data[0] *= ((float)window_width / 2);
+                projected_points[j].data[1] *= ((float)window_height / 2);
 
-            // Invert the y-axis
-            projected_points[j].data[1] *= -1;
+                // Invert the y-axis
+                projected_points[j].data[1] *= -1;
 
-            // Translate in the middle of the screen
-            projected_points[j].data[0] += (float)window_width / 2;
-            projected_points[j].data[1] += (float)window_height / 2;
-        }
-
-        float light_factor = 1.0;
-        if (current_light_mode == LIGHT_ON) {
-            light_factor = -vec3_dot_product(normal, light.direction);
-        }
-        
-        triangle_t projected_triangle = {
-            .color = mesh_face.color,
-            .light_intensity = light_factor,
-            .points = {
-                projected_points[0],
-                projected_points[1],
-                projected_points[2]
-            },
-            .tex_coords = {
-                { mesh_face.a_uv.u, mesh_face.a_uv.v },
-                { mesh_face.b_uv.u, mesh_face.b_uv.v },
-                { mesh_face.c_uv.u, mesh_face.c_uv.v },
+                // Translate in the middle of the screen
+                projected_points[j].data[0] += (float)window_width / 2;
+                projected_points[j].data[1] += (float)window_height / 2;
             }
-        };
 
-        // Save the projected tri. for the renderer
-        triangle_to_render[num_triangles_to_render++] = projected_triangle;
+            float light_factor = 1.0;
+            if (current_light_mode == LIGHT_ON) {
+                light_factor = -vec3_dot_product(normal, light.direction);
+            }
+            
+            triangle_t projected_triangle = {
+                .color = mesh_face.color,
+                .light_intensity = light_factor,
+                .points = {
+                    projected_points[0],
+                    projected_points[1],
+                    projected_points[2]
+                },
+                .tex_coords = {
+                    { mesh_face.a_uv.u, mesh_face.a_uv.v },
+                    { mesh_face.b_uv.u, mesh_face.b_uv.v },
+                    { mesh_face.c_uv.u, mesh_face.c_uv.v },
+                }
+            };
+
+            // Save the projected tri. for the renderer
+            triangle_to_render[num_triangles_to_render++] = projected_triangle;
+        }
     }
 
 }

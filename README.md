@@ -112,10 +112,10 @@ face_t cube_faces[12] = {
 
 **Lines**
 Line drawing algorithms (Rasterize):
-- **Naive algorithm**
-- **Digital Differential Analyzer** (DDA graphics algorithm) — Similar to the naive line-drawing algorithm, with minor variations.
+- [__Old solition__] **Naive algorithm**
+- [__Old solition__] **Digital Differential Analyzer** (DDA graphics algorithm) — Similar to the naive line-drawing algorithm, with minor variations.
     - Warning: a bit slower because of the `/` operation
-- **Bresenham's line algorithm** - Optimized to use only additions (i.e. no division Multiplications); it also avoids floating-point computations.
+- [__Current solution__] **Bresenham's line algorithm** - Optimized to use only additions (i.e. no division Multiplications); it also avoids floating-point computations.
 - **The Gupta-Sproull algorithm** - Based on Bresenham's line algorithm but adds antialiasing.
 
 **Triagles**
@@ -127,7 +127,7 @@ __Problem__: The order of the face being render is important for the depth.
 
 __Old solition__: Painters Algorithm, assumption: Z-value is the average of the 3 points.
 
-__Current solution__: Z-buffering (or depth buffering) -- **Will be done soon**
+__Current solution__: Z-buffering (or depth buffering)
 
 ---
 
@@ -368,13 +368,13 @@ Once we have the intersection point, we can clip the triangle,
 
 But before, algo to clip a polygon against a plane:
 ```
-	      ----Q_3
-        Q_2---       \
-    ^   |             Q_4
-    |   |            /
+	    __Q_3__
+        __--       --__
+    ^  Q_2            Q_4
+    |   \            /
 ----P---I_1---------I_2-
-        |          /
-	Q_1------Q_5
+          \        /
+	   Q_1---Q_5
 
 | Inside | Outside |
 +--------+---------+
@@ -389,4 +389,21 @@ But before, algo to clip a polygon against a plane:
 ```
 We end up with two list, one for points for inside and one for outside.
 - In this case, the resulting polygone is the inside one: `{I_1, Q_2, Q_3, Q_4, I_2}`
+
+### Converting Polygons into triangles
+Technique:
+- Vertices to non-adjectent vertices
+- Point in the middle of the polygon
+- All from the same point:
+    ```
+	Q_0____Q_3
+	/ \    /
+       /   \  /
+     Q_l---Q_2
+    ```
+    So:
+    ```
+    for (int i=0; i < (num_vertices-2); i++)
+	add_triangle(Q_0, Q_i+1, Q_i+2)
+    ```
 
