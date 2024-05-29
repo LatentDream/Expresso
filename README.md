@@ -124,7 +124,9 @@ Filled triangle algorithms used: simple scanline algorithm, with a flat-bottom a
 
 ### Triangle with color
 __Problem__: The order of the face being render is important for the depth.
+
 __Old solition__: Painters Algorithm, assumption: Z-value is the average of the 3 points.
+
 __Current solution__: Z-buffering (or depth buffering) -- **Will be done soon**
 
 ---
@@ -132,6 +134,7 @@ __Current solution__: Z-buffering (or depth buffering) -- **Will be done soon**
 # Using matrix to represent 3D transformations
 
 Homogeneous coordinates - 4x4 Matrix
+
 ```
 [ m  m  m  m ] [ x ]
 [ m  m  m  m ] [ y ]
@@ -241,6 +244,7 @@ Finding the mapping: Barycentric coordinates
     - `alpah = ||PCxPV|| / ||ACxAB||` (lenght of the cross product)
 - Same for beta and gamma
 
+---
 
 # Camera
 Models:

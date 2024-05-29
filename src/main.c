@@ -76,9 +76,9 @@ void setup(void) {
     // char* filename = "./assets/f22";
     // char* filename = "./assets/drone";
     // char* filename = "./assets/f117";
-    char* filename = "./assets/efa";
+    // char* filename = "./assets/efa";
     // char* filename = "./assets/crab";
-    // char* filename = "./assets/cube";
+    char* filename = "./assets/cube";
 
     color_t color = 0xFFFF5400;
     char* obj_filename = malloc(strlen(filename) + 5);
@@ -193,7 +193,7 @@ void update(void) {
     // Init or render array
     num_triangles_to_render = 0;
 
-    // Our movement
+    // Movement
     // mesh.rotation.x += 0.4 * delta_time;
     // mesh.rotation.y += 0.2 * delta_time;
     // mesh.rotation.z += 0.1 * delta_time;
@@ -227,6 +227,8 @@ void update(void) {
 
     // Loop over the triangle faces
     for (int i = 0; i < array_length(mesh.faces); i++) {
+        if (i != 4) continue;
+
         face_t mesh_face = mesh.faces[i];
 
         vec3_t face_vertices[3];
@@ -272,6 +274,15 @@ void update(void) {
                 continue;
             }
         }
+
+        // Clipping: create a polygon from the triangle
+        polygon_t polygon = create_polygon_from_triangle(
+            vec3_from_vec4(transformed_vertices[0]),
+            vec3_from_vec4(transformed_vertices[1]),
+            vec3_from_vec4(transformed_vertices[2])
+        );
+        clip_polygon(&polygon);
+        // TODO: break the polygon into triangles
 
         vec4_t projected_points[3];
         // Project the point in 2D

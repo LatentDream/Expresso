@@ -37,6 +37,7 @@ vec3_t vec3_mult(vec3_t a, float factor);
 vec3_t vec3_cross(vec3_t a, vec3_t b);
 float  vec3_dot_product(vec3_t a, vec3_t b);
 void   vec3_normalize(vec3_t* a);
+vec3_t vec3_clone(vec3_t* v);
 
 // 4D
 
