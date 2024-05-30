@@ -44,6 +44,8 @@ void setup(void) {
     set_current_light_mode(LIGHT_ON);
     set_culling_mode(CULLING_ON);
 
+    create_light((vec3_t){0, 0, 1});
+
     // Init the perspective matrix
     float aspecty = (float)get_window_height() / (float)get_window_width();
     float aspectx = (float)get_window_width() / (float)get_window_height();
@@ -319,7 +321,7 @@ void update(void) {
 
             float light_factor = 1.0;
             if (get_current_light_mode() == LIGHT_ON) {
-                light_factor = -vec3_dot_product(normal, light.direction);
+                light_factor = -vec3_dot_product(normal, get_light().direction);
             }
             
             triangle_t projected_triangle = {
@@ -341,7 +343,6 @@ void update(void) {
             triangle_to_render[num_triangles_to_render++] = projected_triangle;
         }
     }
-
 }
 
 void render(void) {

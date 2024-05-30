@@ -1,7 +1,7 @@
 #include "light.h"
 #include "display.h"
 
-light_t light = {
+static light_t light = {
     .direction = { 0, 0, 1 }
 };
 
@@ -18,3 +18,15 @@ color_t shade_color(color_t original_color, float factor) {
 
     return result;
 }
+
+light_t create_light(vec3_t direction) {
+    light_t result = {
+        .direction = direction
+    };
+    return result;
+}
+
+light_t get_light(void) {
+    return light;
+}
+

@@ -8,8 +8,8 @@ typedef struct {
     vec3_t direction;
 } light_t;
 
-extern light_t light;
-
 color_t shade_color(color_t original_color, float factor);
+light_t create_light(vec3_t direction);
+light_t get_light(void);
 
 #endif // !LIGHT_H
