@@ -99,15 +99,15 @@ int get_render_mode(void) {
     return render_method;
 }
 
-void set_current_light_mode(int light_mode) {
-    light_mode = light_mode;
+void set_current_light_mode(int mode) {
+    light_mode = mode;
 }
 int get_current_light_mode(void) {
     return light_mode;
 }
 
-void set_culling_mode(int culling_mode) {
-    culling_mode = culling_mode;
+void set_culling_mode(int mode) {
+    culling_mode = mode;
 }
 int get_culling_mode(void) {
     return culling_mode;
