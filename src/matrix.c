@@ -27,7 +27,7 @@ mat4_t mat4_make_scale(float sx, float sy, float sz) {
 mat4_t mat4_make_translation(float tx, float ty, float tz) {
     mat4_t translator = mat4_identity();
     translator.data[3]  = tx;
-    translator.data[8]  = ty;
+    translator.data[7]  = ty;
     translator.data[11] = tz;
     return translator;
 }

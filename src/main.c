@@ -35,6 +35,8 @@ mat4_t world_matrix;
 static color_t COLOR_CONTRAST = 0xFF1154BB;
 mat4_t perspective;
 
+#define PI 3.14159265
+
 // Setup Function ==============================================================
 
 void setup(void) {
@@ -56,19 +58,17 @@ void setup(void) {
 
     initialize_frustum_planes(fovy, fovx, near, far);
 
-    // char* filename = "./assets/drone";
-    // char* filename = "./assets/efa";
-    // char* filename = "./assets/crab";
-    // char* filename = "./assets/cube";
-
     char* filename = "./assets/f22";
-    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){0, 0, 5}, (vec3_t){0, 0, 0});
+    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){0, -1.3, +5}, (vec3_t){0, -PI/2, 0});
 
     filename = "./assets/f117";
-    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){6, 0, 5}, (vec3_t){0, 0, 0});
+    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
 
     filename = "./assets/efa";
-    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){-6, 0, 5}, (vec3_t){0, 0, 0});
+    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){-2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
+
+    filename = "./assets/runway";
+    load_mesh(filename, (vec3_t){1, 0, 1}, (vec3_t){0, -1.5, +23}, (vec3_t){0, 0, 0});
 
 }
 
@@ -190,7 +190,7 @@ void update(void) {
         // mesh.rotation.z += 0.1 * delta_time;
         // mesh.scale.x += 0.02 * delta_time;
         // mesh.scale.y += 0.01 * delta_time;
-        // mesh.translation.x += 0.01 * delta_time;
+        // mesh->translation.z += 0.01 * delta_time;
         // mesh.translation.z = 5.0;
 
         // Camera
