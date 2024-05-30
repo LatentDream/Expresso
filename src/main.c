@@ -8,14 +8,9 @@
 #include "light.h"
 #include "matrix.h"
 #include "texture.h"
-#include "upng.h"
 #include "vector.h"
 #include "mesh.h"
 #include "triangle.h"
-
-// Window Setting
-color_t* color_buffer            = NULL;
-SDL_Texture* color_buffer_texture = NULL;
 
 // Event Loop
 bool is_running = false;
