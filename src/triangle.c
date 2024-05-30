@@ -79,12 +79,11 @@ void draw_triangle_pixel(int x, int y, vec4_t point_a, vec4_t point_b, vec4_t po
     float interpolated_reciprocal_w = inverse_w.x * alpha + inverse_w.y * beta + inverse_w.z * gamma;
     interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
-    int position_screen = (y * window_width) + x;
-    if (interpolated_reciprocal_w < z_buffer[position_screen]) {
+    if (interpolated_reciprocal_w < get_z_buffer(x, y)) {
         // Draw the pixel with the color from the texture
         draw_pixel(x, y, shade_color(*color, light_intensity));
         // Update the z_buffer for the current pixel
-        z_buffer[position_screen] = interpolated_reciprocal_w;
+        update_z_buffer(x, y, interpolated_reciprocal_w);
     }
 }
 
@@ -122,13 +121,12 @@ void draw_texel(int x, int y, vec4_t point_a, vec4_t point_b, vec4_t point_c, te
     // Adjust 1/w value
     interpolated_reciprocal_w = 1.0 - interpolated_reciprocal_w;
 
-    int position_screen = (y * window_width) + x;
     int position_texture = (tex_y * texture_width) + tex_x;
-    if (interpolated_reciprocal_w < z_buffer[position_screen]) {
+    if (interpolated_reciprocal_w < get_z_buffer(x, y)) {
         // Draw the pixel with the color from the texture
         draw_pixel(x, y, shade_color(texture[position_texture], light_intensity));
         // Update the z_buffer for the current pixel
-        z_buffer[position_screen] = interpolated_reciprocal_w;
+        update_z_buffer(x, y, interpolated_reciprocal_w);
     }
 }
 

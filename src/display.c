@@ -7,8 +7,23 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-float* z_buffer = NULL;
+// Variable ////////////////////////////////////////////////
+static SDL_Window* window;
+static SDL_Renderer* renderer;
 
+static color_t* color_buffer;
+static float* z_buffer;
+
+static SDL_Texture* color_buffer_texture;
+static int window_height;
+static int window_width;
+
+int render_method = WIREFRAME_AND_VERTEX;
+int light_mode = LIGHT_ON;
+int culling_mode = CULLING_ON;
+
+
+// initialize display ---------------------------------------------------------
 bool initialize_window(void) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr, "Error initializing SDL.\n");
@@ -18,9 +33,10 @@ bool initialize_window(void) {
     // Get display info
     SDL_DisplayMode display_mode;
     SDL_GetCurrentDisplayMode(0, &display_mode);
-    window_width = display_mode.w / 2;
-    window_height = display_mode.h / 1.5;
+    window_width = display_mode.w;
+    window_height = display_mode.h;
 
+    // Create SDL window
     window = SDL_CreateWindow(
         NULL,
         SDL_WINDOWPOS_CENTERED,
@@ -34,16 +50,82 @@ bool initialize_window(void) {
         return false;
     }
     
+    // Create SDL renderer
     renderer = SDL_CreateRenderer(window, -1, 0);
     if (!renderer) {
         fprintf(stderr, "Error creating SDL renderer.\n");
         return false;
     }
 
-    // SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+
+    // Allocate the required memory in bytes to hold the color buffer
+    color_buffer = (color_t*) malloc(sizeof(color_t) * window_width * window_height);
+    z_buffer = (float*) malloc(sizeof(float) * window_width * window_height);
+    
+    // Creating a SDL texture that is used to display the color buffer
+    color_buffer_texture = SDL_CreateTexture(
+        renderer,
+        SDL_PIXELFORMAT_RGBA32,
+        SDL_TEXTUREACCESS_STREAMING,
+        window_width,
+        window_height
+    );
 
     return true;
 }
+
+void destroy_window(void) {
+    free(color_buffer);
+    free(z_buffer);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+
+// Getter / Setter ------------------------------------------------------------
+int get_window_width(void) {
+    return window_width;
+}
+
+int get_window_height(void) {
+    return window_height;
+}
+
+void set_render_mode(int method) {
+    render_method = method;
+}
+int get_render_mode(void) {
+    return render_method;
+}
+
+void set_current_light_mode(int light_mode) {
+    light_mode = light_mode;
+}
+int get_current_light_mode(void) {
+    return light_mode;
+}
+
+void set_culling_mode(int culling_mode) {
+    culling_mode = culling_mode;
+}
+int get_culling_mode(void) {
+    return culling_mode;
+}
+
+float get_z_buffer(int x, int y) {
+    if (x < 0 || x >= window_width || y < 0 || y >= window_height) {
+        return 1.0;
+    }
+    return z_buffer[(window_width * y) + x];
+}
+void update_z_buffer(int x, int y, float z) {
+    if (x < 0 || x >= window_width || y < 0 || y >= window_height) {
+        return;
+    }
+    z_buffer[(window_width * y) + x] = z;
+}
+
 
 // Draw grid ------------------------------------------------------------------
 
@@ -70,9 +152,10 @@ void draw_ref(void) {
 // Draw pixel -----------------------------------------------------------------
 
 void draw_pixel(int x, int y, color_t color) {
-    if (x < window_width && x >= 0 && y < window_height && y >= 0) {
-        color_buffer[(window_width * y) + x] = color;
+    if (x < 0 || x >= window_width || y < 0 || y >= window_height) {
+        return;
     }
+    color_buffer[(window_width * y) + x] = color;
 }
 
 // Draw rect ------------------------------------------------------------------
@@ -153,26 +236,19 @@ void render_color_buffer(void) {
         (int)(window_width * sizeof(color_t))
     );
     SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
 }
 
 void clear_color_buffer(color_t color) {
-    for (int y = 0; y < window_height; y++) {
-        for (int x = 0; x < window_width; x++) {
-            color_buffer[(window_width * y) + x] = color;
-        }
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    for (int i = 0; i < window_width * window_height; i++) {
+        color_buffer[i] = color;
     }
 }
 
 void clear_z_buffer(void) {
-    for (int y = 0; y < window_height; y++) {
-        for (int x = 0; x < window_width; x++) {
-            z_buffer[(window_width * y) + x] = 1.0;
-        }
+    for (int i = 0; i < window_width * window_height; i++) {
+        z_buffer[i] = 1.0;
     }
-}
-
-void destroy_window(void) {
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
 }

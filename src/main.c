@@ -1,5 +1,3 @@
-#include <SDL2/SDL_keycode.h>
-#include <SDL2/SDL_timer.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -19,12 +17,6 @@
 color_t* color_buffer            = NULL;
 SDL_Texture* color_buffer_texture = NULL;
 
-// Display
-int window_height      = 800;
-int window_width       = 600;
-SDL_Window* window     = NULL;
-SDL_Renderer* renderer = NULL;
-
 // Event Loop
 bool is_running = false;
 int previous_frame_time = 0;
@@ -40,33 +32,21 @@ mat4_t view_matrix;
 mat4_t world_matrix;
 
 // Modes
-culling_mode current_culling_mode = CULLING_ON;
-rendering_mode current_rendering_mode = TRIANGLE_AND_WIREFRAME;
-color_t COLOR_CONTRAST = 0xFF1154BB;
-light_mode current_light_mode = LIGHT_ON;
+static color_t COLOR_CONTRAST = 0xFF1154BB;
 mat4_t perspective;
 camera_mode current_camera_mode = FPS;
-
 
 // Setup Function ==============================================================
 
 void setup(void) {
-    // Allocate the required memory in bytes to hold the color buffer
-    color_buffer = (color_t*) malloc(sizeof(color_t) * window_width * window_height);
-    z_buffer = (float*) malloc(sizeof(float) * window_width * window_height);
-    
-    // Creating a SDL texture that is used to display the color buffer
-    color_buffer_texture = SDL_CreateTexture(
-        renderer,
-        SDL_PIXELFORMAT_RGBA32,
-        SDL_TEXTUREACCESS_STREAMING,
-        window_width,
-        window_height
-    );
+
+    set_render_mode(TRIANGLE_AND_WIREFRAME);
+    set_current_light_mode(LIGHT_ON);
+    set_culling_mode(CULLING_ON);
 
     // Init the perspective matrix
-    float aspecty = (float)window_height / (float)window_width;
-    float aspectx = (float)window_width / (float)window_height;
+    float aspecty = (float)get_window_height() / (float)get_window_width();
+    float aspectx = (float)get_window_width() / (float)get_window_height();
     float fovy = 1.047194;  // 60 degrees in radians
     float fovx = 2 * atan(aspectx * tan(fovy / 2));
     float near = 0.1;
@@ -94,8 +74,6 @@ void setup(void) {
 }
 
 void free_ressources(void) {
-    free(color_buffer);
-    free(z_buffer);
     array_free(mesh.faces);
     array_free(mesh.vertices);
     upng_free(upng_texture);
@@ -105,77 +83,102 @@ void free_ressources(void) {
 
 void process_input(void) {
     SDL_Event event;
-    SDL_PollEvent(&event);
+    while (SDL_PollEvent(&event)) {
 
-    switch (event.type) {
-        case SDL_QUIT:
-            is_running = false;
-            break;
-        case SDL_KEYDOWN:
-            // Quit ---------------------------
-            if (event.key.keysym.sym == SDLK_ESCAPE)
+        switch (event.type) {
+            case SDL_QUIT:
                 is_running = false;
+                break;
+            case SDL_KEYDOWN:
+                // Quit ---------------------------
+                if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    is_running = false;
+                    break;
+                }
+                // Rendering mode -----------------
+                if (event.key.keysym.sym == SDLK_c) {
+                    set_culling_mode((get_culling_mode() + 1) % 2);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_y) {
+                    set_render_mode(WIREFRAME_AND_VERTEX);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_u) {
+                    set_render_mode(WIREFRAME);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_i) {
+                    set_render_mode(TRIANGLE);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_o) {
+                    set_render_mode(TRIANGLE_AND_WIREFRAME);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_t) {
+                    set_render_mode(TEXTURE);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_g) {
+                    set_render_mode(TEXTURE_AND_WIREFRAME);
+                    break;
+                }
+                // Light mode ---------------------
+                if (event.key.keysym.sym == SDLK_l) {
+                    set_current_light_mode((get_current_light_mode() + 1) % 2);
+                    break;
+                }
 
-            // Rendering mode -----------------
-            if (event.key.keysym.sym == SDLK_c)
-                current_culling_mode = (current_culling_mode + 1) % 2;
-            if (event.key.keysym.sym == SDLK_y)
-                current_rendering_mode = WIREFRAME_AND_VERTEX;
-            if (event.key.keysym.sym == SDLK_u)
-                current_rendering_mode = WIREFRAME;
-            if (event.key.keysym.sym == SDLK_i)
-                current_rendering_mode = TRIANGLE;
-            if (event.key.keysym.sym == SDLK_o)
-                current_rendering_mode = TRIANGLE_AND_WIREFRAME;
-            if (event.key.keysym.sym == SDLK_t)
-                current_rendering_mode = TEXTURE;
-            if (event.key.keysym.sym == SDLK_g)
-                current_rendering_mode = TEXTURE_AND_WIREFRAME;
-
-            // Light mode ---------------------
-            if (event.key.keysym.sym == SDLK_l)
-                current_light_mode = (current_light_mode + 1) % 2;
-
-            // Camera movement ----------------
-            if (event.key.keysym.sym == SDLK_f)
-                current_camera_mode = (current_camera_mode + 1) % 2;
-            // TODO: SDL only allows one key press at a time ?
-            if (event.key.keysym.sym == SDLK_a) {
-                if (current_camera_mode == FPS)
-                    camera.yaw_angle += 5 * delta_time;
-                else {
-                    camera.position.x += 5 * delta_time;
+                // Camera movement ----------------
+                if (event.key.keysym.sym == SDLK_f) {
+                    current_camera_mode = (current_camera_mode + 1) % 2;
+                    break;
                 }
-            }
-            if (event.key.keysym.sym == SDLK_d) {
-                if (current_camera_mode == FPS)
-                    camera.yaw_angle -= 5 * delta_time;
-                else {
-                    camera.position.x -= 5 * delta_time;
+                if (event.key.keysym.sym == SDLK_a) {
+                    if (current_camera_mode == FPS)
+                        camera.yaw_angle += 5 * delta_time;
+                    else {
+                        camera.position.x += 5 * delta_time;
+                    }
+                    break;
                 }
-            }
-            if (event.key.keysym.sym == SDLK_w) {
-                if (current_camera_mode == FPS) {
-                    camera.forward_velocity = vec3_mult(camera.direction, 5.0 * delta_time);
-                    camera.position = vec3_add(camera.position, camera.forward_velocity);
-                } else {
-                    camera.position.y += 1 * delta_time;
+                if (event.key.keysym.sym == SDLK_d) {
+                    if (current_camera_mode == FPS)
+                        camera.yaw_angle -= 5 * delta_time;
+                    else {
+                        camera.position.x -= 5 * delta_time;
+                    }
+                    break;
                 }
-            }
-            if (event.key.keysym.sym == SDLK_s) {
-                if (current_camera_mode == FPS) {
-                    camera.forward_velocity = vec3_mult(camera.direction, 5.0 * delta_time);
-                    camera.position = vec3_sub(camera.position, camera.forward_velocity);
-                } else {
-                    camera.position.y -= 1 * delta_time;
+                if (event.key.keysym.sym == SDLK_w) {
+                    if (current_camera_mode == FPS) {
+                        camera.forward_velocity = vec3_mult(camera.direction, 5.0 * delta_time);
+                        camera.position = vec3_add(camera.position, camera.forward_velocity);
+                    } else {
+                        camera.position.y += 1 * delta_time;
+                    }
+                    break;
                 }
-            }
-            if (event.key.keysym.sym == SDLK_e)
+                if (event.key.keysym.sym == SDLK_s) {
+                    if (current_camera_mode == FPS) {
+                        camera.forward_velocity = vec3_mult(camera.direction, 5.0 * delta_time);
+                        camera.position = vec3_sub(camera.position, camera.forward_velocity);
+                    } else {
+                        camera.position.y -= 1 * delta_time;
+                    }
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_e) {
                     camera.position.y += 5 * delta_time;
-            if (event.key.keysym.sym == SDLK_q)
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_q) {
                     camera.position.y -= 5 * delta_time;
-
-            break;
+                    break;
+                }
+                break;
+        }
     }
 }
 
@@ -269,7 +272,7 @@ void update(void) {
 
         // Verify if the normal and camera are align
         float alignment_with_camera = vec3_dot_product(camera_ray, normal);
-        if (current_culling_mode == CULLING_ON) {
+        if (get_culling_mode() == CULLING_ON) {
 
             // Prune the negative triangle
             if (alignment_with_camera < 0) {
@@ -303,19 +306,19 @@ void update(void) {
                 projected_points[j] = mat4_mul_vec4_project(perspective, clipped_triangle.points[j]);
 
                 // Scale into view
-                projected_points[j].data[0] *= ((float)window_width / 2);
-                projected_points[j].data[1] *= ((float)window_height / 2);
+                projected_points[j].data[0] *= ((float)get_window_width() / 2);
+                projected_points[j].data[1] *= ((float)get_window_height() / 2);
 
                 // Invert the y-axis
                 projected_points[j].data[1] *= -1;
 
                 // Translate in the middle of the screen
-                projected_points[j].data[0] += (float)window_width / 2;
-                projected_points[j].data[1] += (float)window_height / 2;
+                projected_points[j].data[0] += (float)get_window_width() / 2;
+                projected_points[j].data[1] += (float)get_window_height() / 2;
             }
 
             float light_factor = 1.0;
-            if (current_light_mode == LIGHT_ON) {
+            if (get_current_light_mode() == LIGHT_ON) {
                 light_factor = -vec3_dot_product(normal, light.direction);
             }
             
@@ -343,15 +346,13 @@ void update(void) {
 
 void render(void) {
     // Clear buffer
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
     clear_color_buffer(0xFF000000);
     clear_z_buffer();
     draw_ref();
 
     // Render all the triangle that need to be renderer
     for (int i = 0; i < num_triangles_to_render; i++) {
-        switch (current_rendering_mode) {
+        switch (get_render_mode()) {
             case WIREFRAME_AND_VERTEX:
             draw_triangle(triangle_to_render[i], triangle_to_render[i].color);
             for (int j = 0; j < 3; j++) {
@@ -381,7 +382,6 @@ void render(void) {
 
     // Render
     render_color_buffer();
-    SDL_RenderPresent(renderer);
 }
 
 // Main Function ===============================================================

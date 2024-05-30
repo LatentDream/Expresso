@@ -10,37 +10,47 @@
 #define FPS 60
 #define FRAME_TARGET_TIME (1000.0 / FPS)
 
-typedef enum { WIREFRAME,
+enum rendering_mode { WIREFRAME,
     WIREFRAME_AND_VERTEX,
     TRIANGLE,
     TRIANGLE_AND_WIREFRAME, 
     TEXTURE,
     TEXTURE_AND_WIREFRAME,
-} rendering_mode;
-typedef enum { CULLING_ON, CULLING_OFF } culling_mode;
-typedef enum { LIGHT_ON, LIGHT_OFF } light_mode;
-typedef uint32_t color_t;
+};
+enum culling_mode { CULLING_ON, CULLING_OFF };
+enum light_mode { LIGHT_ON, LIGHT_OFF };
 
-// Variable ////////////////////////////////////////////////
-extern color_t* color_buffer;
-extern SDL_Texture* color_buffer_texture;
-extern int window_height;
-extern int window_width;
-extern SDL_Window* window;
-extern SDL_Renderer* renderer;
-extern float* z_buffer;
+typedef uint32_t color_t;
 
 // Function ////////////////////////////////////////////////
 bool initialize_window(void);
+void destroy_window(void);
+
+// Drawing ////////////////////////////////////////////////
 void draw_grid(void);
 void draw_ref(void);
 void draw_pixel(int x, int y, color_t color);
 void draw_rec(int x, int y, int w, int h, color_t color);
 void draw_line(vec2_t start, vec2_t end, color_t color);
 void draw_triangle(triangle_t triangle, color_t color);
+
+// Rendering //////////////////////////////////////////////
 void clear_color_buffer(color_t color);
 void render_color_buffer(void);
-void destroy_window(void);
 void clear_z_buffer(void);
+float get_z_buffer(int x, int y);
+void update_z_buffer(int x, int y, float z);
+
+// Getter / Setter /////////////////////////////////////////
+int get_window_height(void);
+int get_window_width(void);
+
+void set_render_mode(int method);
+int get_render_mode(void);
+void set_current_light_mode(int light_mode);
+int get_current_light_mode(void);
+void set_culling_mode(int culling_mode);
+int get_culling_mode(void);
+
 
 #endif // DISPLAY_H
