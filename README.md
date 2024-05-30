@@ -5,18 +5,31 @@
 
 # Expresso
 
-Old school 3D engine from scratch.
-
-Started the implementation by following [Pikuma's course on 3D Computer Graphics](https://pikuma.com/courses).
+Old school 3D engine from scratch in C.
 
 ## Dev Env
 
 ```
 sudo apt install build-essential
 sudo apt install libsdl2-dev
-make
-./bin/{{platform}}/debug/expresso
+make release=1
+./bin/linux/release/expresso
 ```
+
+---
+
+# Ressources
+
+Started the implementation by following [Pikuma's course on 3D Computer Graphics](https://pikuma.com/courses).
+- [Perspective-Correct Interpolation](https://s3.amazonaws.com/thinkific/file_uploads/167815/attachments/c06/b72/f58/KokLimLow-PerspectiveCorrectInterpolation.pdf)
+- [upng](https://github.com/elanthis/upng)
+- [SDL2](https://www.libsdl.org/)
+
+**Next steps**:
+- Gouraud shading
+- [Phong Model](https://graphics.stanford.edu/courses/cs348b-07/lectures/reflection_ii/reflection_ii.pdf)
+- Move from SDL to Raylib
+- GPU acceleration
 
 ---
 
@@ -30,6 +43,15 @@ make
 - **5.5** Perspective divide
 - **6** Image space (NDC)
 - **7** Screen Space
+
+---
+
+# Result
+
+<p align="center">
+	<img width="800" src="./demo.gif">
+<p align="center">
+
 
 ---
 
