@@ -1,6 +1,7 @@
 #include "clipping.h"
 #include "texture.h"
 #include "triangle.h"
+#include "upng.h"
 #include "vector.h"
 #include <math.h>
 
@@ -128,7 +129,8 @@ polygon_t create_polygon_from_triangle(
 void create_triangles_from_polygon(
     polygon_t* polygon,
     triangle_t* clipped_triangles,
-    int* num_clipped_triangles
+    int* num_clipped_triangles,
+    upng_t* texture
 ) {
      for (int i = 0; i < polygon->num_vertices - 2; i++) {
          int index0 = 0;
@@ -141,6 +143,7 @@ void create_triangles_from_polygon(
          clipped_triangles[i].tex_coords[0] = polygon->tex_coords[index0];
          clipped_triangles[i].tex_coords[1] = polygon->tex_coords[index1];
          clipped_triangles[i].tex_coords[2] = polygon->tex_coords[index2];
+         clipped_triangles[i].texture = texture;
      }
      *num_clipped_triangles = polygon->num_vertices - 2;
 }

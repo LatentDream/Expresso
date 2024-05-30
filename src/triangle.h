@@ -16,9 +16,10 @@ typedef struct {
     tex2_t tex_coords[3];
     uint32_t color;
     float light_intensity;
+    upng_t* texture;
 } triangle_t;
 
 void draw_filled_triangle(triangle_t triangle, uint32_t color);
-void draw_textured_triangle(triangle_t triangle, uint32_t* texture);
+void draw_textured_triangle(triangle_t triangle);
 
 #endif // !TRIANGLE_H

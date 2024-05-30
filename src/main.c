@@ -273,7 +273,7 @@ void update(void) {
             // Clipping: create a triangle from the polygon
             triangle_t clipped_triangles[MAX_NUM_TRIANGLES];
             int num_clipped_triangles = 0;
-            create_triangles_from_polygon(&polygon, clipped_triangles, &num_clipped_triangles);
+            create_triangles_from_polygon(&polygon, clipped_triangles, &num_clipped_triangles, mesh->texture);
 
             // Only render the triangle that are inside the frustum
             for (int t = 0; t < num_clipped_triangles; t++) {
@@ -314,7 +314,8 @@ void update(void) {
                         { clipped_triangle.tex_coords[0].u, clipped_triangle.tex_coords[0].v },
                         { clipped_triangle.tex_coords[1].u, clipped_triangle.tex_coords[1].v },
                         { clipped_triangle.tex_coords[2].u, clipped_triangle.tex_coords[2].v },
-                    }
+                    },
+                    .texture = mesh->texture
                 };
 
                 // Save the projected tri. for the renderer
@@ -350,11 +351,11 @@ void render(void) {
             draw_filled_triangle(triangle_to_render[i], triangle_to_render[i].color);
             break;
             case TEXTURE:
-                // draw_textured_triangle(triangle_to_render[i], mesh_texture);
+                draw_textured_triangle(triangle_to_render[i]);
                 break;
             case TEXTURE_AND_WIREFRAME:
-                // draw_triangle(triangle_to_render[i], COLOR_CONTRAST);
-                // draw_textured_triangle(triangle_to_render[i], mesh_texture);
+                draw_triangle(triangle_to_render[i], COLOR_CONTRAST);
+                draw_textured_triangle(triangle_to_render[i]);
                 break;
             break;
         }
