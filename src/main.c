@@ -34,7 +34,6 @@ mat4_t world_matrix;
 // Modes
 static color_t COLOR_CONTRAST = 0xFF1154BB;
 mat4_t perspective;
-camera_mode current_camera_mode = FPS;
 
 // Setup Function ==============================================================
 
@@ -133,50 +132,30 @@ void process_input(void) {
                 }
 
                 // Camera movement ----------------
-                if (event.key.keysym.sym == SDLK_f) {
-                    current_camera_mode = (current_camera_mode + 1) % 2;
-                    break;
-                }
                 if (event.key.keysym.sym == SDLK_a) {
-                    if (current_camera_mode == FPS)
-                        camera.yaw_angle += 5 * delta_time;
-                    else {
-                        camera.position.x += 5 * delta_time;
-                    }
+                    rotate_camera_yaw(1.0 * delta_time);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_d) {
-                    if (current_camera_mode == FPS)
-                        camera.yaw_angle -= 5 * delta_time;
-                    else {
-                        camera.position.x -= 5 * delta_time;
-                    }
+                    rotate_camera_yaw(-1.0 * delta_time);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_w) {
-                    if (current_camera_mode == FPS) {
-                        camera.forward_velocity = vec3_mult(camera.direction, 5.0 * delta_time);
-                        camera.position = vec3_add(camera.position, camera.forward_velocity);
-                    } else {
-                        camera.position.y += 1 * delta_time;
-                    }
+                    rotate_camera_pitch(+3.0 * delta_time);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_s) {
-                    if (current_camera_mode == FPS) {
-                        camera.forward_velocity = vec3_mult(camera.direction, 5.0 * delta_time);
-                        camera.position = vec3_sub(camera.position, camera.forward_velocity);
-                    } else {
-                        camera.position.y -= 1 * delta_time;
-                    }
+                    rotate_camera_pitch(-3.0 * delta_time);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_e) {
-                    camera.position.y += 5 * delta_time;
+                    update_camera_forward_velocity(vec3_mult(get_camera_direction(), 5.0 * delta_time));
+                    update_camera_position(vec3_add(get_camera_position(), get_camera_forward_velocity()));
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_q) {
-                    camera.position.y -= 5 * delta_time;
+                    update_camera_forward_velocity(vec3_mult(get_camera_direction(), 5.0 * delta_time));
+                    update_camera_position(vec3_sub(get_camera_position(), get_camera_forward_velocity()));
                     break;
                 }
                 break;
@@ -202,7 +181,7 @@ void update(void) {
     num_triangles_to_render = 0;
 
     // Movement
-    mesh.rotation.x += 0.4 * delta_time;
+    // mesh.rotation.x += 0.4 * delta_time;
     // mesh.rotation.y += 0.2 * delta_time;
     // mesh.rotation.z += 0.1 * delta_time;
     // mesh.scale.x += 0.02 * delta_time;
@@ -211,13 +190,8 @@ void update(void) {
     mesh.translation.z = 5.0;
 
     // Camera
-    vec3_t target = {0, 0, 1};
-    mat4_t camera_yaw_rotation = mat4_make_rotation_y(camera.yaw_angle);
-    camera.direction = vec3_from_vec4(mat4_mult_vec4(camera_yaw_rotation, vec4_from_vec3(target)));
-
-    target = vec3_add(camera.position, camera.direction);
-
-    view_matrix = mat4_look_at(camera.position, target);
+    vec3_t target = get_camera_lookat_target();
+    view_matrix = mat4_look_at(get_camera_position(), target);
 
     // Transformation matrices
     mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
