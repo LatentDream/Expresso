@@ -1,91 +1,48 @@
 #include "mesh.h"
 #include "array.h"
-#include "display.h"
 #include "texture.h"
+#include "upng.h"
 #include "vector.h"
 #include <stdio.h>
 #include <string.h>
 
-mesh_t mesh = {
-    .vertices = NULL,
-    .faces = NULL,
-    .rotation = { 0, 0, 0 },
-    .scale = { 1.0, 1.0, 1.0 },
-    .translation = { 0, 0, 0 }
-};
+#define MAX_MESHES 256
+static mesh_t meshes[MAX_MESHES];
+static int num_meshes = 0;
 
-vec3_t cube_vertices[N_CUBE_VERTICES] = {
-    { .x = -1, .y = -1, .z = -1},   // 1
-    { .x = -1, .y =  1, .z = -1},   // 2
-    { .x =  1, .y =  1, .z = -1},   // 3
-    { .x =  1, .y = -1, .z = -1},   // 4
-    { .x =  1, .y =  1, .z =  1},   // 5
-    { .x =  1, .y = -1, .z =  1},   // 6
-    { .x = -1, .y =  1, .z =  1},   // 7
-    { .x = -1, .y = -1, .z =  1},   // 8
-};
-
-face_t cube_faces[N_CUBE_FACES] = {
-    // front
-    { .a = 1, .b = 2, .c = 3, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 1, .b = 3, .c = 4, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-    // right
-    { .a = 4, .b = 3, .c = 5, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 4, .b = 5, .c = 6, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-    // back
-    { .a = 6, .b = 5, .c = 7, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 6, .b = 7, .c = 8, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-    // left
-    { .a = 8, .b = 7, .c = 2, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 8, .b = 2, .c = 1, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-    // top
-    { .a = 2, .b = 7, .c = 5, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 2, .b = 5, .c = 3, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF },
-    // bottom
-    { .a = 6, .b = 8, .c = 1, .a_uv = { 0, 1 }, .b_uv = { 0, 0 }, .c_uv = { 1, 0 }, .color = 0xFFFFFFFF },
-    { .a = 6, .b = 1, .c = 4, .a_uv = { 0, 1 }, .b_uv = { 1, 0 }, .c_uv = { 1, 1 }, .color = 0xFFFFFFFF }
-};
-
-void load_cube_example_mesh(void) {
-    for (int i = 0; i < N_CUBE_VERTICES; i++) {
-        array_push(mesh.vertices, cube_vertices[i])
-    }
-    for (int i = 0; i < N_CUBE_FACES; i++) {
-        array_push(mesh.faces, cube_faces[i])
-    }
+void load_mesh(char* filename, vec3_t scaling, vec3_t translation, vec3_t rotation) {
+    printf("Loading %s\n", filename);
+    char* obj_filename = malloc(strlen(filename) + 5);
+    char* png_filename = malloc(strlen(filename) + 5);
+    sprintf(obj_filename, "%s.obj", filename);
+    sprintf(png_filename, "%s.png", filename);
+    load_mesh_and_data_from_obj(&meshes[num_meshes], obj_filename);
+    load_mesh_png_texture(&meshes[num_meshes], png_filename);
+    meshes[num_meshes].scale = scaling;
+    meshes[num_meshes].translation = translation;
+    meshes[num_meshes].rotation = rotation;
+    num_meshes++;
+    free(obj_filename);
+    free(png_filename);
 }
 
-// Load a mesh from an .obj file that contains only vertices and faces
-void load_mesh_from_obj_simple(const char* filename, color_t color) {
-    FILE* file = fopen(filename, "r");
-    if (!file) {
-        printf("Failed to open file: %s\n", filename);
-        return;
+void free_meshes() {
+    for (int i = 0; i < num_meshes; i++) {
+        array_free(meshes[i].vertices);
+        array_free(meshes[i].faces);
+        upng_free(meshes[i].texture);
     }
-    char line[128];
-    while (fgets(line, sizeof(line), file)) {
-        vec3_t vertex;
-        if (line[0] == 'v') {
-            sscanf(line, "v %f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-            array_push(mesh.vertices, vertex);
-        } else if (line[0] == 'f') {
-            face_t face;
-            sscanf(line, "f %d %d %d\n", &face.a, &face.b, &face.c);
-            face.color = color;
-            face.a_uv = (tex2_t){ 0, 0 };
-            face.b_uv = (tex2_t){ 0, 0 };
-            face.c_uv = (tex2_t){ 0, 0 };
-            array_push(mesh.faces, face);
-
-        }
-    }
-    fclose(file);
-
+    num_meshes = 0;
 }
 
-void load_mesh_and_texture_from_obj(char* filename, color_t color) {
+
+void load_mesh_and_data_from_obj(mesh_t* mesh, char* filename) {
     FILE* file;
     file = fopen(filename, "r");
+    if (!file) {
+        fprintf(stderr, "Failed to open file: %s\n", filename);
+        return;
+    }
     char line[1024];
 
     tex2_t* texcoords = NULL;
@@ -95,7 +52,7 @@ void load_mesh_and_texture_from_obj(char* filename, color_t color) {
         if (strncmp(line, "v ", 2) == 0) {
             vec3_t vertex;
             sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
-            array_push(mesh.vertices, vertex);
+            array_push(mesh->vertices, vertex);
         }
 
         // Texture information
@@ -124,11 +81,66 @@ void load_mesh_and_texture_from_obj(char* filename, color_t color) {
                 .a_uv = texcoords[texture_indices[0]-1],
                 .b_uv = texcoords[texture_indices[1]-1],
                 .c_uv = texcoords[texture_indices[2]-1],
-                .color = color
+                .color = 0xFFEEEEEE
             };
-            array_push(mesh.faces, face);
+            array_push(mesh->faces, face);
         }
     }
 
     array_free(texcoords);
 }
+
+void load_mesh_png_texture(mesh_t* mesh, char* filename) {
+    upng_t* upng_image = upng_new_from_file(filename);
+    if (upng_image != NULL) {
+        upng_decode(upng_image);
+        if (upng_get_error(upng_image) == UPNG_EOK) {
+            mesh->texture = upng_image;
+        } else {
+            fprintf(stderr, "Error decoding PNG\n");
+        }
+    } else {
+        fprintf(stderr, "Error loading PNG: %s\n", filename);
+    }
+}
+
+int get_num_meshes() {
+    return num_meshes;
+}
+
+mesh_t* get_mesh(int mesh_idx) {
+    if (mesh_idx < 0 || mesh_idx >= num_meshes) {
+        return NULL;
+    }
+    return &meshes[mesh_idx];
+}
+
+// TODO: Make this compatible Load a mesh from an .obj file that contains only vertices and faces
+void load_mesh_from_obj(mesh_t* mesh, char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        printf("Failed to open file: %s\n", filename);
+        return;
+    }
+    char line[128];
+    while (fgets(line, sizeof(line), file)) {
+        vec3_t vertex;
+        if (line[0] == 'v') {
+            sscanf(line, "v %f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+            array_push(mesh->vertices, vertex);
+        } else if (line[0] == 'f') {
+            face_t face;
+            sscanf(line, "f %d %d %d\n", &face.a, &face.b, &face.c);
+            face.color = 0xFFEEEEEE;
+            face.a_uv = (tex2_t){ 0, 0 };
+            face.b_uv = (tex2_t){ 0, 0 };
+            face.c_uv = (tex2_t){ 0, 0 };
+
+            array_push(mesh->faces, face);
+
+        }
+    }
+    fclose(file);
+
+}
+

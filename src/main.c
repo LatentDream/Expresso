@@ -56,28 +56,24 @@ void setup(void) {
 
     initialize_frustum_planes(fovy, fovx, near, far);
 
-    char* filename = "./assets/f22";
     // char* filename = "./assets/drone";
-    // char* filename = "./assets/f117";
     // char* filename = "./assets/efa";
     // char* filename = "./assets/crab";
     // char* filename = "./assets/cube";
 
-    printf("Loading %s\n", filename);
-    color_t color = 0xFFFF5400;
-    char* obj_filename = malloc(strlen(filename) + 5);
-    char* png_filename = malloc(strlen(filename) + 5);
-    sprintf(obj_filename, "%s.obj", filename);
-    sprintf(png_filename, "%s.png", filename);
-    load_mesh_and_texture_from_obj(obj_filename, color);
-    load_png_texture_data(png_filename);
+    char* filename = "./assets/f22";
+    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){0, 0, 5}, (vec3_t){0, 0, 0});
+
+    filename = "./assets/f117";
+    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){6, 0, 5}, (vec3_t){0, 0, 0});
+
+    filename = "./assets/efa";
+    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){-6, 0, 5}, (vec3_t){0, 0, 0});
 
 }
 
 void free_ressources(void) {
-    array_free(mesh.faces);
-    array_free(mesh.vertices);
-    upng_free(upng_texture);
+    free_meshes();
 }
 
 // Process Input Function ======================================================
@@ -180,141 +176,150 @@ void update(void) {
     // Init or render array
     num_triangles_to_render = 0;
 
-    // Movement
-    // mesh.rotation.x += 0.4 * delta_time;
-    // mesh.rotation.y += 0.2 * delta_time;
-    // mesh.rotation.z += 0.1 * delta_time;
-    // mesh.scale.x += 0.02 * delta_time;
-    // mesh.scale.y += 0.01 * delta_time;
-    // mesh.translation.x += 0.01 * delta_time;
-    mesh.translation.z = 5.0;
+    for (int mesh_idx = 0; mesh_idx < get_num_meshes(); mesh_idx++) { 
 
-    // Camera
-    vec3_t target = get_camera_lookat_target();
-    view_matrix = mat4_look_at(get_camera_position(), target);
-
-    // Transformation matrices
-    mat4_t scale_matrix = mat4_make_scale(mesh.scale.x, mesh.scale.y, mesh.scale.z);
-    mat4_t translation_matrix = mat4_make_translation(mesh.translation.x, mesh.translation.y, mesh.translation.z);
-    mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh.rotation.x);
-    mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh.rotation.y);
-    mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh.rotation.z);
-    // World matrix
-    world_matrix = mat4_identity();
-    world_matrix = mat4_mult(world_matrix, translation_matrix);
-    world_matrix = mat4_mult(world_matrix, rotation_matrix_x);
-    world_matrix = mat4_mult(world_matrix, rotation_matrix_y);
-    world_matrix = mat4_mult(world_matrix, rotation_matrix_z);
-    world_matrix = mat4_mult(world_matrix, scale_matrix);
-
-    // Loop over the triangle faces
-    for (int i = 0; i < array_length(mesh.faces); i++) {
-
-        face_t mesh_face = mesh.faces[i];
-
-        vec3_t face_vertices[3];
-        face_vertices[0] = mesh.vertices[mesh_face.a];
-        face_vertices[1] = mesh.vertices[mesh_face.b];
-        face_vertices[2] = mesh.vertices[mesh_face.c];
-
-        vec4_t transformed_vertices[3];
-
-        // Loop over the vertices and apply the transformation and save it for the renderer
-        for (int j = 0; j < 3; j++) {
-            vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
-            transformed_vertex = mat4_mult_vec4(world_matrix, transformed_vertex);
-            transformed_vertex = mat4_mult_vec4(view_matrix, transformed_vertex);
-            transformed_vertices[j] = transformed_vertex;
+        mesh_t* mesh = get_mesh(mesh_idx);
+        if (mesh == NULL) {
+            printf("[ERROR] Mesh %d is NULL\n", mesh_idx);
+            continue;
         }
 
-        // Utils for Back culling and light shading                   /*     A     */
-        vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);    /*    / \    */
-        vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);    /*   /   \   */
-        vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);    /*  C --- B  */
+        // Movement
+        // mesh.rotation.x += 0.4 * delta_time;
+        // mesh.rotation.y += 0.2 * delta_time;
+        // mesh.rotation.z += 0.1 * delta_time;
+        // mesh.scale.x += 0.02 * delta_time;
+        // mesh.scale.y += 0.01 * delta_time;
+        // mesh.translation.x += 0.01 * delta_time;
+        // mesh.translation.z = 5.0;
 
-        vec3_t vector_ab = vec3_sub(vector_b, vector_a);
-        vec3_normalize(&vector_ab);
-        vec3_t vector_ac = vec3_sub(vector_c, vector_a);
-        vec3_normalize(&vector_ac);
+        // Camera
+        vec3_t target = get_camera_lookat_target();
+        view_matrix = mat4_look_at(get_camera_position(), target);
 
-        // Compute the face normal (using cross product to find perpendicular);
-        vec3_t normal = vec3_cross(vector_ab, vector_ac);
-        // Normalize the vec
-        vec3_normalize(&normal);
+        // Transformation matrices
+        mat4_t scale_matrix = mat4_make_scale(mesh->scale.x, mesh->scale.y, mesh->scale.z);
+        mat4_t translation_matrix = mat4_make_translation(mesh->translation.x, mesh->translation.y, mesh->translation.z);
+        mat4_t rotation_matrix_x = mat4_make_rotation_x(mesh->rotation.x);
+        mat4_t rotation_matrix_y = mat4_make_rotation_y(mesh->rotation.y);
+        mat4_t rotation_matrix_z = mat4_make_rotation_z(mesh->rotation.z);
+        // World matrix
+        world_matrix = mat4_identity();
+        world_matrix = mat4_mult(world_matrix, translation_matrix);
+        world_matrix = mat4_mult(world_matrix, rotation_matrix_x);
+        world_matrix = mat4_mult(world_matrix, rotation_matrix_y);
+        world_matrix = mat4_mult(world_matrix, rotation_matrix_z);
+        world_matrix = mat4_mult(world_matrix, scale_matrix);
 
-        // Vector between the a point in the triangle and the origin
-        vec3_t origin = {0, 0, 0};
-        vec3_t camera_ray = vec3_sub(origin, vector_a);
+        // Loop over the triangle faces
+        for (int i = 0; i < array_length(mesh->faces); i++) {
 
-        // Verify if the normal and camera are align
-        float alignment_with_camera = vec3_dot_product(camera_ray, normal);
-        if (get_culling_mode() == CULLING_ON) {
+            face_t mesh_face = mesh->faces[i];
 
-            // Prune the negative triangle
-            if (alignment_with_camera < 0) {
-                continue;
-            }
-        }
+            vec3_t face_vertices[3];
+            face_vertices[0] = mesh->vertices[mesh_face.a];
+            face_vertices[1] = mesh->vertices[mesh_face.b];
+            face_vertices[2] = mesh->vertices[mesh_face.c];
 
-        // Clipping: create a polygon from the triangle
-        polygon_t polygon = create_polygon_from_triangle(
-            vec3_from_vec4(transformed_vertices[0]),
-            vec3_from_vec4(transformed_vertices[1]),
-            vec3_from_vec4(transformed_vertices[2]),
-            mesh_face.a_uv,
-            mesh_face.b_uv,
-            mesh_face.c_uv
-        );
-        clip_polygon(&polygon);
-        // Clipping: create a triangle from the polygon
-        triangle_t clipped_triangles[MAX_NUM_TRIANGLES];
-        int num_clipped_triangles = 0;
-        create_triangles_from_polygon(&polygon, clipped_triangles, &num_clipped_triangles);
+            vec4_t transformed_vertices[3];
 
-        // Only render the triangle that are inside the frustum
-        for (int t = 0; t < num_clipped_triangles; t++) {
-            triangle_t clipped_triangle = clipped_triangles[t];
-
-            vec4_t projected_points[3];
-            // Project the point in 2D
+            // Loop over the vertices and apply the transformation and save it for the renderer
             for (int j = 0; j < 3; j++) {
-                // Project the point in 2D
-                projected_points[j] = mat4_mul_vec4_project(perspective, clipped_triangle.points[j]);
-
-                // Scale into view
-                projected_points[j].data[0] *= ((float)get_window_width() / 2);
-                projected_points[j].data[1] *= ((float)get_window_height() / 2);
-
-                // Invert the y-axis
-                projected_points[j].data[1] *= -1;
-
-                // Translate in the middle of the screen
-                projected_points[j].data[0] += (float)get_window_width() / 2;
-                projected_points[j].data[1] += (float)get_window_height() / 2;
+                vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
+                transformed_vertex = mat4_mult_vec4(world_matrix, transformed_vertex);
+                transformed_vertex = mat4_mult_vec4(view_matrix, transformed_vertex);
+                transformed_vertices[j] = transformed_vertex;
             }
 
-            float light_factor = 1.0;
-            if (get_current_light_mode() == LIGHT_ON) {
-                light_factor = -vec3_dot_product(normal, get_light().direction);
-            }
-            
-            triangle_t projected_triangle = {
-                .color = mesh_face.color,
-                .light_intensity = light_factor,
-                .points = {
-                    projected_points[0],
-                    projected_points[1],
-                    projected_points[2]
-                },
-                .tex_coords = {
-                    { clipped_triangle.tex_coords[0].u, clipped_triangle.tex_coords[0].v },
-                    { clipped_triangle.tex_coords[1].u, clipped_triangle.tex_coords[1].v },
-                    { clipped_triangle.tex_coords[2].u, clipped_triangle.tex_coords[2].v },
+            // Utils for Back culling and light shading                   /*     A     */
+            vec3_t vector_a = vec3_from_vec4(transformed_vertices[0]);    /*    / \    */
+            vec3_t vector_b = vec3_from_vec4(transformed_vertices[1]);    /*   /   \   */
+            vec3_t vector_c = vec3_from_vec4(transformed_vertices[2]);    /*  C --- B  */
+
+            vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+            vec3_normalize(&vector_ab);
+            vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+            vec3_normalize(&vector_ac);
+
+            // Compute the face normal (using cross product to find perpendicular);
+            vec3_t normal = vec3_cross(vector_ab, vector_ac);
+            // Normalize the vec
+            vec3_normalize(&normal);
+
+            // Vector between the a point in the triangle and the origin
+            vec3_t origin = {0, 0, 0};
+            vec3_t camera_ray = vec3_sub(origin, vector_a);
+
+            // Verify if the normal and camera are align
+            float alignment_with_camera = vec3_dot_product(camera_ray, normal);
+            if (get_culling_mode() == CULLING_ON) {
+
+                // Prune the negative triangle
+                if (alignment_with_camera < 0) {
+                    continue;
                 }
-            };
+            }
 
-            // Save the projected tri. for the renderer
-            triangle_to_render[num_triangles_to_render++] = projected_triangle;
+            // Clipping: create a polygon from the triangle
+            polygon_t polygon = create_polygon_from_triangle(
+                vec3_from_vec4(transformed_vertices[0]),
+                vec3_from_vec4(transformed_vertices[1]),
+                vec3_from_vec4(transformed_vertices[2]),
+                mesh_face.a_uv,
+                mesh_face.b_uv,
+                mesh_face.c_uv
+            );
+            clip_polygon(&polygon);
+            // Clipping: create a triangle from the polygon
+            triangle_t clipped_triangles[MAX_NUM_TRIANGLES];
+            int num_clipped_triangles = 0;
+            create_triangles_from_polygon(&polygon, clipped_triangles, &num_clipped_triangles);
+
+            // Only render the triangle that are inside the frustum
+            for (int t = 0; t < num_clipped_triangles; t++) {
+                triangle_t clipped_triangle = clipped_triangles[t];
+
+                vec4_t projected_points[3];
+                // Project the point in 2D
+                for (int j = 0; j < 3; j++) {
+                    // Project the point in 2D
+                    projected_points[j] = mat4_mul_vec4_project(perspective, clipped_triangle.points[j]);
+
+                    // Scale into view
+                    projected_points[j].data[0] *= ((float)get_window_width() / 2);
+                    projected_points[j].data[1] *= ((float)get_window_height() / 2);
+
+                    // Invert the y-axis
+                    projected_points[j].data[1] *= -1;
+
+                    // Translate in the middle of the screen
+                    projected_points[j].data[0] += (float)get_window_width() / 2;
+                    projected_points[j].data[1] += (float)get_window_height() / 2;
+                }
+
+                float light_factor = 1.0;
+                if (get_current_light_mode() == LIGHT_ON) {
+                    light_factor = -vec3_dot_product(normal, get_light().direction);
+                }
+                
+                triangle_t projected_triangle = {
+                    .color = mesh_face.color,
+                    .light_intensity = light_factor,
+                    .points = {
+                        projected_points[0],
+                        projected_points[1],
+                        projected_points[2]
+                    },
+                    .tex_coords = {
+                        { clipped_triangle.tex_coords[0].u, clipped_triangle.tex_coords[0].v },
+                        { clipped_triangle.tex_coords[1].u, clipped_triangle.tex_coords[1].v },
+                        { clipped_triangle.tex_coords[2].u, clipped_triangle.tex_coords[2].v },
+                    }
+                };
+
+                // Save the projected tri. for the renderer
+                triangle_to_render[num_triangles_to_render++] = projected_triangle;
+            }
         }
     }
 }
@@ -345,11 +350,11 @@ void render(void) {
             draw_filled_triangle(triangle_to_render[i], triangle_to_render[i].color);
             break;
             case TEXTURE:
-                draw_textured_triangle(triangle_to_render[i], mesh_texture);
+                // draw_textured_triangle(triangle_to_render[i], mesh_texture);
                 break;
             case TEXTURE_AND_WIREFRAME:
-                draw_triangle(triangle_to_render[i], COLOR_CONTRAST);
-                draw_textured_triangle(triangle_to_render[i], mesh_texture);
+                // draw_triangle(triangle_to_render[i], COLOR_CONTRAST);
+                // draw_textured_triangle(triangle_to_render[i], mesh_texture);
                 break;
             break;
         }
