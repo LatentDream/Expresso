@@ -22,6 +22,9 @@ int render_method = WIREFRAME_AND_VERTEX;
 int light_mode = LIGHT_ON;
 int culling_mode = CULLING_ON;
 
+static int window_width = 680;
+static int window_height = 400;
+
 
 // initialize display ---------------------------------------------------------
 bool initialize_window(void) {
@@ -33,16 +36,20 @@ bool initialize_window(void) {
     // Get display info
     SDL_DisplayMode display_mode;
     SDL_GetCurrentDisplayMode(0, &display_mode);
-    window_width = display_mode.w;
-    window_height = display_mode.h;
+    int full_window_width = display_mode.w;
+    int full_window_height = display_mode.h;
+
+    window_width = full_window_width / 3;
+    window_height = full_window_height / 3;
+
 
     // Create SDL window
     window = SDL_CreateWindow(
         NULL,
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        window_width,
-        window_height,
+        full_window_width,
+        full_window_height,
         SDL_WINDOW_BORDERLESS
     );
     if (!window) {
@@ -235,7 +242,7 @@ void render_color_buffer(void) {
         color_buffer,
         (int)(window_width * sizeof(color_t))
     );
-    SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
+    SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL); // Will scale the color_buffer!
     SDL_RenderPresent(renderer);
 }
 

@@ -201,8 +201,8 @@ void update(void) {
 
     // Movement
     mesh.rotation.x += 0.4 * delta_time;
-    mesh.rotation.y += 0.2 * delta_time;
-    mesh.rotation.z += 0.1 * delta_time;
+    // mesh.rotation.y += 0.2 * delta_time;
+    // mesh.rotation.z += 0.1 * delta_time;
     // mesh.scale.x += 0.02 * delta_time;
     // mesh.scale.y += 0.01 * delta_time;
     // mesh.translation.x += 0.01 * delta_time;
