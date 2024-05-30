@@ -35,16 +35,24 @@ make
 
 # Personnal Notes
 
+```
+    y+
+    |    
+    |   z+      . (1, 0, 1)
+    |  /   
+    | /
+____|/________ x+
+    /
+   /|
+  / |
+```
 
-## 3D points:
-```
-y
-|
-|   z   . (2, 2, 1)
-|  /   
-| /
-|/________ x
-```
+**Z axis growth + in the screen**:
+- Left handed coordinate system
+- Clockwise winding order for triangle
+- A normal would be: `N = (B - A) x (C - A)`
+
+## Moving an element by moving the vertices
 
 **Rotation**
 REM: SOH CAH TOA ;)
