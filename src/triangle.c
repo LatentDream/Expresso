@@ -7,6 +7,25 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+vec3_t get_triangle_normal(vec4_t vertices[3]) {
+    // Utils for Back culling and light shading       /*     A     */
+    vec3_t vector_a = vec3_from_vec4(vertices[0]);    /*    / \    */
+    vec3_t vector_b = vec3_from_vec4(vertices[1]);    /*   /   \   */
+    vec3_t vector_c = vec3_from_vec4(vertices[2]);    /*  C --- B  */
+
+    vec3_t vector_ab = vec3_sub(vector_b, vector_a);
+    vec3_normalize(&vector_ab);
+    vec3_t vector_ac = vec3_sub(vector_c, vector_a);
+    vec3_normalize(&vector_ac);
+
+    // Compute the face normal (using cross product to find perpendicular);
+    vec3_t normal = vec3_cross(vector_ab, vector_ac);
+    // Normalize the vec
+    vec3_normalize(&normal);
+
+    return normal;
+}
+
 // Helper function ============================================================
 void point_swap(vec4_t* point_a, vec4_t* point_b) {
     vec4_t tmp = *point_a;

@@ -21,5 +21,6 @@ typedef struct {
 
 void draw_filled_triangle(triangle_t triangle, uint32_t color);
 void draw_textured_triangle(triangle_t triangle);
+vec3_t get_triangle_normal(vec4_t vertices[3]);
 
 #endif // !TRIANGLE_H
