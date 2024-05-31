@@ -37,6 +37,7 @@ make release=1
 - Performance optimization
 - A memory check with Valgrid 
 - GPU acceleration (OpenGL, Vulkan, DirectX, WebGL || WebGPU)
+- Explore fix math: [libfixmatrix](https://github.com/PetteriAimonen/libfixmatrix)
 
 **To Check**:
 - [Foundations of Game Engine Development](https://foundationsofgameenginedev.com/) 
@@ -44,6 +45,8 @@ make release=1
 - [Texture Mapping Technical Articles](https://www.chrishecker.com/Miscellaneous_Technical_Articles)
 - [Rasterization Rules & the Edge Function](https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage)
 - [Rasterization Rules](https://docs.microsoft.com/en-us/windows/win32/direct3d9/rasterization-rules#triangle-rasterization-rules)
+- [CUDA C Programming](https://docs.nvidia.com/cuda/archive/9.1/pdf/CUDA_C_Programming_Guide.pdf)
+- [Parallel Computer Architecture and programming](http://15418.courses.cs.cmu.edu/spring2016/lectures)
 
 **C ressources**:
 - [How I program C](https://www.youtube.com/watch?v=443UNeGrFoM)
@@ -498,5 +501,7 @@ for (int i=0; i < (num_vertices-2); i++)
 ```
 **The problem of rendering the overlap occur with this algo too**
 - Convention (Rasterization Rules): Top-Left rule - A pixel center is defined to lie inside of a triangle if it lies on a flat top edge or a left edge of a triangle 
+
+
 
 
