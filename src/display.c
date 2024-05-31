@@ -36,8 +36,8 @@ bool initialize_window(void) {
     // Get display info
     SDL_DisplayMode display_mode;
     SDL_GetCurrentDisplayMode(0, &display_mode);
-    int full_window_width = display_mode.w;
-    int full_window_height = display_mode.h;
+    int full_window_width = display_mode.w / 2;
+    int full_window_height = display_mode.h / 2;
 
     window_width = full_window_width;
     window_height = full_window_height;

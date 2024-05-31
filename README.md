@@ -24,12 +24,29 @@ Started the implementation by following [Pikuma's course on 3D Computer Graphics
 - [Perspective-Correct Interpolation](https://s3.amazonaws.com/thinkific/file_uploads/167815/attachments/c06/b72/f58/KokLimLow-PerspectiveCorrectInterpolation.pdf)
 - [upng](https://github.com/elanthis/upng)
 - [SDL2](https://www.libsdl.org/)
+- [Parallel Rasterization](https://www.cs.drexel.edu/~deb39/Classes/Papers/comp175-06-pineda.pdf)
+- [fgiesen blog](https://fgiesen.wordpress.com/2013/02/08/triangle-rasterization-in-practice/)
 
 **Next steps**:
-- Gouraud shading
-- [Phong Model](https://graphics.stanford.edu/courses/cs348b-07/lectures/reflection_ii/reflection_ii.pdf)
+- Shading options:
+    - Ditchering to achieve shading (could be a cool background)
+    - Gouraud shading
+    - [Phong Model](https://graphics.stanford.edu/courses/cs348b-07/lectures/reflection_ii/reflection_ii.pdf)
 - Move from SDL to Raylib
-- GPU acceleration
+- Performance optimization
+- A memory check with Valgrid 
+- GPU acceleration (OpenGL, Vulkan, DirectX, WebGL || WebGPU)
+
+**To Check**:
+- [Foundations of Game Engine Development](https://foundationsofgameenginedev.com/) 
+- [Graphics Programming Black Book](https://www.drdobbs.com/parallel/graphics-programming-black-book/184404919)
+- [Texture Mapping Technical Articles](https://www.chrishecker.com/Miscellaneous_Technical_Articles)
+- [Rasterization Rules & the Edge Function](https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage)
+- [Rasterization Rules](https://docs.microsoft.com/en-us/windows/win32/direct3d9/rasterization-rules#triangle-rasterization-rules)
+
+**C ressources**:
+- [How I program C](https://www.youtube.com/watch?v=443UNeGrFoM)
+- [Build your own Lisp](https://buildyourownlisp.com/chapter1_introduction#how_to_learn_c)
 
 ---
 
@@ -287,6 +304,8 @@ Finding the mapping: Barycentric coordinates
     - `alpah = ||PCxPV|| / ||ACxAB||` (lenght of the cross product)
 - Same for beta and gamma
 
+**Barycentric coord can also be use to create edge function to have "gradient" color on a triangle**
+
 ---
 
 # Camera
@@ -452,4 +471,31 @@ So:
 for (int i=0; i < (num_vertices-2); i++)
     add_triangle(Q_0, Q_i+1, Q_i+2)
 ```
+
+---
+
+# GPU acceleration
+
+### Step one: Efficient parallel rasterization
+- See kristoffer dyrkorn's blog: [here](https://kristoffer-dyrkorn.github.io/triangle-rasterizer/)
+
+```
+   V_0
+   |\
+   | \
+   |  \
+   |   \
+   | .  \
+   |  P  \
+   |______\
+   V_2     V_1
+
+   Check if P is to the "right" or the "left" the edges
+   - Using cross product to find the magnitude of the z component (coming out of the screen)
+   - `cross2d = ax * by - bx * ay`
+   - if the arrow point "inside" the triangle, the sign is +
+```
+**The problem of rendering the overlap occur with this algo too**
+- Convention (Rasterization Rules): Top-Left rule - A pixel center is defined to lie inside of a triangle if it lies on a flat top edge or a left edge of a triangle 
+
 
