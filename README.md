@@ -20,7 +20,7 @@ make release=1
 
 # Ressources
 
-Started the implementation by following [Pikuma's course on 3D Computer Graphics](https://pikuma.com/courses).
+- Started the implementation by following [Pikuma's course on 3D Computer Graphics](https://pikuma.com/courses).
 - [Perspective-Correct Interpolation](https://s3.amazonaws.com/thinkific/file_uploads/167815/attachments/c06/b72/f58/KokLimLow-PerspectiveCorrectInterpolation.pdf)
 - [upng](https://github.com/elanthis/upng)
 - [SDL2](https://www.libsdl.org/)

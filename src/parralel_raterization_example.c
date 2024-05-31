@@ -43,6 +43,8 @@ int is_top_left(vec2_t* start, vec2_t* end) {
 }
 
 void triangle_fill(vec2_t v0, vec2_t v1, vec2_t v2, color_t color) {
+    // PERF: Edge function and constant increment so when we go out of the triangle, we go to the next loop
+    // See: https://www.cs.drexel.edu/~deb39/Classes/Papers/comp175-06-pineda.pdf
     int x_min = MIN(v0.x, MIN(v1.x, v2.x));
     int y_min = MIN(v0.y, MIN(v1.y, v2.y));
     int x_max = MAX(v0.x, MAX(v1.x, v2.x));
