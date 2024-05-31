@@ -32,6 +32,7 @@ make release=1
     - Ditchering to achieve shading (could be a cool background)
     - Gouraud shading
     - [Phong Model](https://graphics.stanford.edu/courses/cs348b-07/lectures/reflection_ii/reflection_ii.pdf)
+- Subpixel rasterization
 - Move from SDL to Raylib
 - Performance optimization
 - A memory check with Valgrid 
