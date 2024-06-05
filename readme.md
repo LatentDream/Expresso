@@ -28,7 +28,7 @@ Designing and writing parallel programs:
 
 Implementing parallel programs, the underliging architecture / machine is really important
 
-**/!\ WARNING /!\**: `Fast != Efficient`
+** /!\ WARNING /!\ **: `Fast != Efficient`
 - The metric depends on the problem. 2x speedup with a 10x cost, is it good ? depends on the problems
 
 ---
@@ -385,25 +385,102 @@ Message passing model (abstraction)
 
 # Lecture 4: Parallel Programming Basics
 
+## Data-Parallel Model
+- Historically: same ops on each element of an array
+    - Matched capabilities SIMD supercomputers of the 80s
+    - Connection Machine: thousands of processors, one instruction decode unit
+- Today: Often takes form of SPMD programming
+    - `Map(function, collection)`
+    - Where function is applied to each element of collection independently
+    - Function may be a complex sequence of logic
+    - Synchonization is often implicit at the end of the map
 
+Stream programming benefits:
+```C
+const int N = 1024;
+stream<float> input(N);
+stream<float> output(N);
+stream<float> tmp(N);
 
+foo(input, tmp);
+bar(tmp, output);
+```
+A clever compiler could optimize the code to:
+```C
+parallel_for(int i=0; i<N; i++) {
+    output[i] = bar(foo(input[i]));
+}
+```
+Here two ops are done on the input, removing the need to save the var to the memory. The values are stored in on-chip buffers/caches, which saves bandwidth.
 
+**Disadvantages**: More complex data flow, harder to reason about for the compiler
 
+Gather / Scatter, two key data-parallel operations
+- Gather: Collecting data from different locations and putting it in one place
+    - Ex: `stream_gather(input, tmp, index)`
+- Scatter: Taking data from one place and putting it in different locations
+    - Ex: `stream_scatter(tmp, output, index)`
 
+### Summary: data-parallel model
+- Data-parallelism is about imposing rigid program structure to facilitate simple programming and advanced optimizations
+- Basic structure: `map(function, collection)`
+    - Functional: sedi-effect free execution
+    - No Communication among the intrinsic operations
+- In pratice, many simple programs use that.
+- But, many modern perfomance-oriented data-parallel languages do not stricly enforce this structure.
+    - ISPC, OpenCL, CUDA, ...
+    - They choose flexibility/familiarity of imperative C-style syntax over the safety of a more functional form.
 
+## Creating parallel programs
+Thought process:
+1. Identify work that can be performed in parallel
+2. Partition work (and also data associated with the work)
+3. Manage data access, communication, and synchronization
 
+Goal: Speedup(P)
 
+**Creating parallel programs**
+1. Problem Decomposition - (finding subproblems, task, ...)
+2. Assigning - (parallel thread, worker, ...)
+3. Orchestration - (comminication thread)
+4. Mapping - to the hardware
 
+### Decompisition
+Break up the problem into smaller pieces that **can** be solved **independently**
+- Need to happen statically
+- New tasks can be identified as program executes
 
+Mains idea: creat at least enough task to keep all execution units on a machine busy
 
+#### Amdahl's Law
+Let `S=` the fraction of sequential execution that is inherently sequential (dependencies prevent parallel execution)
+- The maximum speedup due to parallel execution `<= 1/S`
 
+<p align="center">
+	<img width="800" src="./ressources/Amdahl_law.PNG">
+<p align="center">
 
+### Assignment
+Assigning tasks to "threads"
+- Goal: balance the workload, reduce communication costs
+- Can be performed statically, or dynamically
+- While programmer often responsible for decomposition, many languages / runtimes take responsibility for assignment.
 
+### Orchestration
+Involves
+- Structure communication
+- Adding synchronization to preserve dependencies if necessary
+- Organizing data strucutres in memory
+- Schedule tasks
 
+Goals: reduce costs of communication/sync, preserve locality of data reference, reduce overhead, ...
 
+**Machine details impact many of these decisions**
 
+Check following lectures for more details about the orchestration
 
-
+### Mapping to hardware
+Can be done by: Programmer, compiler, runtime, hardware ... It depends on the language, the hardware.
 
 
 
