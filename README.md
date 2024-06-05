@@ -505,5 +505,5 @@ for (int i=0; i < (num_vertices-2); i++)
 **The problem of rendering the overlap occur with this algo too**
 - Convention (Rasterization Rules): Top-Left rule - A pixel center is defined to lie inside of a triangle if it lies on a flat top edge or a left edge of a triangle 
 
-[Note on Parallel course](./parallel.md)
+[Note on Parallel course](./Parallelism.md)
 

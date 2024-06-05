@@ -3,11 +3,10 @@ __Carnegie Mellon University__ [Course](http://15418.courses.cs.cmu.edu/spring20
 
 ## Table of content
 
-- [Lecture 1](#lecture-1:-why-parallelism)
-- [Lecture 2](#lecture-2:-a-modern-multi-core-processor)
-    - Forms of parallelism + Latency and Bandwidth
-- [Lecture 3](#lecture-3:-parallel-programming-models)
-    - Ways of thinking about parallel programs, and their corresponding hardware implementations
+- [Lecture 1](#lecture-1): Why Parallelism
+- [Lecture 2](#lecture-2): Forms of parallelism + Latency and Bandwidth
+- [Lecture 3](#lecture-3): Ways of thinking about parallel programs, and their corresponding hardware implementations
+- [Lecture 4](#lecture-4): Parallel Programming Basics
 
 ---
 
@@ -381,4 +380,64 @@ Thread communication by reading/writing to shared variables, by the share global
 Message passing model (abstraction)
 - Threads operate within their own private address sapces
 - Threads communicate by sending/receiving messages 
+
+---
+
+# Lecture 4: Parallel Programming Basics
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
