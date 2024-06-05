@@ -156,11 +156,11 @@ vec4_t expimental__mat4_mult_vec4_fast(mat4_t m, vec4_t v) {
     for (int row = 0; row < 4; row++) {
         __m128 sum = _mm_set1_ps(0.0f);
         for (int i = 0; i < 4; i++) {
-            __m128 m_row = _mm_loadu_ps(&m.data[row * 4 + i]); // Load row of 'm'
+            __m128 m_row = _mm_loadu_ps(&m.data[row * 4 + i]);  // Load row of 'm'
             __m128 v_val = _mm_set1_ps(v.data[i]);              // Broadcast element of 'v'
             sum = _mm_add_ps(sum, _mm_mul_ps(m_row, v_val));    // Multiply and add
         }
-        _mm_storeu_ps(&result.data[row], sum);                 // Store result in 'result'
+        _mm_storeu_ps(&result.data[row], sum);                  // Store result in 'result'
     }
     return result;
 }

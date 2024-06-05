@@ -51,6 +51,9 @@ make release=1
 **C ressources**:
 - [How I program C](https://www.youtube.com/watch?v=443UNeGrFoM)
 - [Build your own Lisp](https://buildyourownlisp.com/chapter1_introduction#how_to_learn_c)
+- [Fedor Pikus's talks](https://www.youtube.com/watch?v=g-WPhYREFjk)
+- [Cache Effect](https://igoro.com/archive/gallery-of-processor-cache-effects/)
+- Perf Profiler, check orbit
 
 ---
 
@@ -478,7 +481,7 @@ for (int i=0; i < (num_vertices-2); i++)
 
 ---
 
-# GPU acceleration
+# Parallel acceleration
 
 ### Step one: Efficient parallel rasterization
 - See kristoffer dyrkorn's blog: [here](https://kristoffer-dyrkorn.github.io/triangle-rasterizer/)
@@ -502,6 +505,5 @@ for (int i=0; i < (num_vertices-2); i++)
 **The problem of rendering the overlap occur with this algo too**
 - Convention (Rasterization Rules): Top-Left rule - A pixel center is defined to lie inside of a triangle if it lies on a flat top edge or a left edge of a triangle 
 
-
-
+[Note on Parallel course](./parallel.md)
 
