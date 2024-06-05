@@ -20,6 +20,7 @@ make release=1
 
 # Ressources
 
+- [Note from Parallel Programming - Carnegie Mellon University](https://github.com/LatentDream/Expresso/tree/carnegie-parallel-course)
 - Started the implementation by following [Pikuma's course on 3D Computer Graphics](https://pikuma.com/courses).
 - [Perspective-Correct Interpolation](https://s3.amazonaws.com/thinkific/file_uploads/167815/attachments/c06/b72/f58/KokLimLow-PerspectiveCorrectInterpolation.pdf)
 - [upng](https://github.com/elanthis/upng)
@@ -505,5 +506,4 @@ for (int i=0; i < (num_vertices-2); i++)
 **The problem of rendering the overlap occur with this algo too**
 - Convention (Rasterization Rules): Top-Left rule - A pixel center is defined to lie inside of a triangle if it lies on a flat top edge or a left edge of a triangle 
 
-[Note on Parallel course](./parallel.md)
 
