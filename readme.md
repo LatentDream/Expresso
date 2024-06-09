@@ -7,6 +7,7 @@ __Carnegie Mellon University__ [Course](http://15418.courses.cs.cmu.edu/spring20
 - [Lecture 2](#lecture-2): Forms of parallelism + Latency and Bandwidth
 - [Lecture 3](#lecture-3): Ways of thinking about parallel programs, and their corresponding hardware implementations
 - [Lecture 4](#lecture-4): Parallel Programming Basics
+- [Lecture 5](#lecture-5): GPU Architecture & CUDA Programming
 
 ---
 
@@ -482,15 +483,154 @@ Check following lectures for more details about the orchestration
 ### Mapping to hardware
 Can be done by: Programmer, compiler, runtime, hardware ... It depends on the language, the hardware.
 
+---
+
+# lecture 5 GPU Architecture & CUDA Programming
+
+GPU: just another multicore processor.
+- Graphics Processing Unit, where the Graphics part is just for historical reasons.
+
+How to explain a system, (ex: graphic)
+1. Describe the *thing* that are manipulated.
+- The nouns
+- Ex: vertices, primitives, fragments and pixel
+2. Describe the operations that can be performed on the entities
+- The verbs
+- Ex: Take a list of vertices in input, compute where those vertices fall on the screen (vertex processing), convert to triangle (primitive generation), generate the fragment ("raseterization"), compute the color (fragment processing), output the pixel.
+
+The first GPU were fixed function for the graphic processing pipeline, but now they are programmable (since 2001).
+
+In the early days, OpenGL give the programmer a couple of API to describe the material, but since the is so much material, the vertex processing and gragment processing are now programmable.
+- A function that will be called for each vertex, and another for each fragment.
+
+Next step in the history of GPU, hacking early GPU for scientific computing. With only two triangle, we can fix the screen size with the element of the input stream we want to process, and we can have a lot of parallelism.
+- After that, Grad student from Stanford created a Compiler for that to target OpenGL.
+- And finally, the industry took over, and NVIDIA created CUDA.
+
+Now a days, we have two mode of programming on the GPU:
+- Graphics mode: OpenGL, DirectX, Vulkan
+- Compute mode: CUDA, OpenCL (open version of CUDA for all GPU), ...
+
+### NVIDIA Tesla architecture
+First alternative, non-graphic specific interface to GPU hardware.
+
+Lets say a user wants to run a non-graphics program on the GPU's programmable cores:
+- App can allocate buffers in GPU memory and copy data to/from them
+- App provides GPU a single kernel program binary
+- App tells GPU to run the jernel in a SPMD fashion (run N instances)
+- Go! `execute(kernel, N)`
 
 
+### The plan
+1. CUDA Programming Abstractions
+2. CUDA implementation on modern GPUs
+3. More detail on GPU architecture
+
+**For this lecture:** `thread == in term of CUDA thread`, which is very different from before.
+
+**CUDA programs consist of a hierarchy of concurrent threads.**
+
+Thread IDs can be up to 3-dimensional. Multi-dimensional thread ids are convenient for problems that are naturally N-D.
+
+Let's check a CUDA program:
+```C
+const int Nx = 12;
+const int Ny = 6;
+
+dim3 threadsPerBlock(4, 2, 1);
+dim3 numBlocks(Nx / threadsPerBlock.x, Ny / threadsPerBlock.y, 1);
+
+// Assume A, B, C are allocated Nx x Ny float arrays
+
+// Next call will trigger execution of 72 CUDA threads:
+// 6 thread blocks of 12 threads each
+matrixAdd<<<numBlocks, threadsPerBlock>>>(A, B, C);  // NOTE A.
+```
+
+Basic CUDA syntax:
+- "Host" code: serail execution running as part of normal C/C++ application on CPU
+- **NOTE A** Bulk launch of many CUDA threads. "Launch a grid of CUDA thread blocks". And all returns when all threads have terminated.
+
+The CUDA kernel:
+```C
+__global__ void matrixAdd(float A[Ny][Nx], float B[Ny][Nx], float C[Ny][Nx]) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+    C[j][i] = A[j][i] + B[j][i];
+}
+```
+- `__global__`: CUDA keyword to indicate a kernel function
+- Each thread computes its overall grid thread id from its position in its block (`threadIdx`) and its block's position in the grid (`blockIdx`)
+
+**Important**: Both CPU and GPU has their own memory space, so we need to copy the data from the CPU to the GPU before running the kernel.
+- `cudaMalloc` is the function to allocate memory on the GPU
+- `cudaMemcpy` is the function to do that.
+
+**Memory model**: Three distinct types of memory visible to kernels:
+- Per-Block
+- Per-Thread
+- Device (global)
+
+<p align="center">
+	<img width="800" src="./ressources/cuda_memory.png">
+<p align="center">
+
+#### Example: 1D convolution
+```C
+#define THREADS_PER_BLOCK 128
+
+__global__ void convolve(int N, float* input, float* output) {
+    
+    __shared__ float support[THREADS_PER_BLOCK + 2];        // Per block allocation
+    int index = blockIdx.x * blockDim.x + threadIdx.x;      // thread local variable
+
+    // All threads cooperatively load block's support region from global into shared
+    support[threadIdx.x] = input[index];
+    if (threadIdx.x < 2) {
+        support[THREADS_PER_BLOCK + threadIdx.x] = input[index + THREADS_PER_BLOCK ];
+    }
+
+    __syncthreads();  // Wait for all threads to finish loading
+
+    // Each thread computes result for one element
+    float result = 0.0f;
+    for (int i=0; i<3; i++) {
+        result += support[threadIdx.x + i];
+    }
+
+    output[index] = result / 3.0f;  // Write to global memory
+}
+```
+
+**Synchronization constructs:**
+- `__syncthreads()`: Barrier synchronization within a block
+- Atomic operations: `atomicAdd`, `atomicMin`, `atomicMax`, ...
+- Host/device synchronization: `cudaDeviceSynchronize()`
 
 
+#### CUDA implementation on modern GPUs
+A compiled CUDA device binary includes:
+- Program text
+- Info about required rsources
+    - threads per block
+    - B bytes of local data per thread
+    - N floats of share space per thread block
 
+The hardware have a worker pool and the schedualer, and dependending of the number of core, it will schedule the block of threads. So even if we want a billion thread, they will just be queued.
 
+<p align="center">
+	<img width="800" src="./ressources/nvidia_gtx_980.png">
+<p align="center">
+**16 time this core**
 
+Looking at it from how we analyzed the CPU:
+- Cores
+- 64 way multithreading
+- 32 wide SIMD
+- 2 wide ILP within a thread
+- Simultaneous multithreading (4 warps at the same time)
 
-
+**Warp**: A group of 32 threads that share the same instruction stream.
 
 
 
