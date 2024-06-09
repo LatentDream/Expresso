@@ -48,6 +48,8 @@ make release=1
 - [Rasterization Rules](https://docs.microsoft.com/en-us/windows/win32/direct3d9/rasterization-rules#triangle-rasterization-rules)
 - [CUDA C Programming](https://docs.nvidia.com/cuda/archive/9.1/pdf/CUDA_C_Programming_Guide.pdf)
 - [Parallel Computer Architecture and programming](http://15418.courses.cs.cmu.edu/spring2016/lectures)
+- [Computer Graphics at Carnegie Mellon University](https://github.com/CMU-Graphics/Scotty3D)
+- [TheNumbat's list](https://github.com/TheNumbat/Lists)
 
 **C ressources**:
 - [How I program C](https://www.youtube.com/watch?v=443UNeGrFoM)
