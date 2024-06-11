@@ -8,6 +8,7 @@ __Carnegie Mellon University__ [Course](http://15418.courses.cs.cmu.edu/spring20
 - [Lecture 3](#lecture-3): Ways of thinking about parallel programs, and their corresponding hardware implementations
 - [Lecture 4](#lecture-4): Parallel Programming Basics
 - [Lecture 5](#lecture-5): GPU Architecture & CUDA Programming
+- [Lecture 6](#lecture-6): Performance Optimization I: Work distribution and scheduling
 
 ---
 
@@ -632,8 +633,64 @@ Looking at it from how we analyzed the CPU:
 
 **Warp**: A group of 32 threads that share the same instruction stream.
 
+---
+
+# lecture 6: Performance Optimization I: Work distribution and scheduling
+
+Optimizing the performance of parallel programs is an iterative process of refining choices for decomposition, assignment, and orchestration.
+
+Key Goals:
+- Balance workload
+- Reduce communication (to avoid stalls)
+- Reduce extra work (overhead) performed to increase parallelism
+
+TIP #1: Always implement the simplest solution first, then measure performance to determine if you need to od better.
+
+### Balancing workload
+Ideally: all processors are computing all the time during program execution.
+(They are computing simultaneously, and they finish their portion of the work at the same time)
+
+**Static assignment**
+- Assigment of work to threads is pre-determined
+    - Not necessaryly determined at compile-time
+- Good properties of static assignment: simple, zero runtime overhead.
+
+**Semi-static assignment**
+
+But many have dynamic workloads, ex: Galexy simulation with a list of particle. We want to put the start close together on the same processor, but after a while, the partition will change
+
+- Cost of work is predictable for near-term future
+    - Idea: recent past good predictor of near future
+- Application periodically profiles application and re-adjusts assignment
+    - "Static" for an interval of time
+
+**Dynamic assignment**
+Program determines work assignment at runtime to ensure a well distributed load.
+- Note: Synchronization "Taking the lock for example" can be costly!
+
+<p align="center">
+	<img width="800" src="./ressources/problem_with_sync.PNG">
+<p align="center">
+
+Here we could eleminate the lock. We could also take a couple of element at the time. Random everything so the easy and quick work will be dispersed.
+- Note: the lock is a atomic op on modern machine so the overhead is actually pretty low
+
+### Choose task size
+- Usefull to have many more tasks than processors
+    - Motives small granularity tasks
+- But we want as few tasks as possible to minimize overhead of managing the assignment
+    - Motives large granularity tasks
+- Ideal granularity depends on many factors
+    - Programmer must know the task and the hardware
+
+## Scheduling
+
+Another strategy to improve performance is to change the order in which tasks are executed. Let's say we prioritize the task that are the longest first so the other can be done in parallel in the meanwhile.
+
+**Task may not be independent**
 
 
+LECTURE 6 - TIMESTAMP: 52:00
 
 
 
