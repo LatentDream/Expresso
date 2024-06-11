@@ -9,7 +9,7 @@ __Carnegie Mellon University__ [Course](http://15418.courses.cs.cmu.edu/spring20
 - [Lecture 4](#lecture-4): Parallel Programming Basics
 - [Lecture 5](#lecture-5): GPU Architecture & CUDA Programming
 - [Lecture 6](#lecture-6): Performance Optimization I: Work distribution and scheduling
-
+- [Lecture 7](#lecture-7): Performance Optimization II: Locality, Communication, and Contention
 ---
 
 # Lecture 1: Why Parallelism
@@ -689,18 +689,53 @@ Another strategy to improve performance is to change the order in which tasks ar
 
 **Task may not be independent**
 
+### Scheduling fork-join parallelism
+Let's think about a devide-and-conquer algorithm:
+QuickSort:
+```C
+void quicksort(int* start, int* end) {
+    if (begin >= end) return;
+    int* pivot = partition(start, end);
+    quicksort(start, pivot);
+    quicksort(pivot+1, end);
+}
+```
 
-LECTURE 6 - TIMESTAMP: 52:00
+**Fork-join pattern**
+- Natural way to express independent work inherent in divide-and-conquer algorithms
+- This lecture's code examples will be in Cilk Plus
+    - C++ language extension for parallel programming
+    - From MIT, now adapted as onpen standard (in GCC)
+
+`cilk_spawn foo(args);`
+
+Semantics: invoke `foo`, but unlike standard function call, caller may continue executing asynchronously with execution of `foo`
+
+`cilk_sync;`
+
+Sementics: returns when all calls spawned by current function have completed.
+(There is a implicit sync at the end of the function)
+
+**Abstraction vs implementation**:
+
+- Notice that `cilk_spawn` abstraction does not specify how or when spawned calls are scheduled to execute. Only that they may be run concurrently with caller.
+- But `cilk_sync` does serve as a constraint on scheduling. All spawned calls must complete before the caller may continue.
 
 
+**Writing fork-join programs**:
+- Main idea: expose independent work (potetnial parallelism to the system using `cil_spawn`
+- Recall parallel programming rules of thumb:
+    - Minimize synchronization
+    - Minimize communication
+    - Minimize extra work
 
+The cilk runtime maintains pool of worker threads (created at the app lauch)
 
+Each worker has a queue of tasks to execute, (sorted in a divide-and-conquer fashion). So if a worker is idle, he can steal work from another worker and from the top of the queue so the work is divided evenly.
 
+---
 
-
-
-
-
+# Lecture 7: Performance Optimization II: Locality, Communication, and Contention
 
 
 
