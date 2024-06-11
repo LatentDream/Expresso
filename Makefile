@@ -45,7 +45,7 @@ INCLUDE_DIR = include
 INCLUDES := -I$(INCLUDE_DIR)
 
 # C preprocessor settings
-CPPFLAGS = $(INCLUDES) -MMD -MP
+CPPFLAGS = $(INCLUDES) -MMD -MP -fopenmp
 
 # C compiler settings
 CC = gcc
@@ -53,7 +53,7 @@ CFLAGS = -std=c11
 WARNINGS = -Wall -Wpedantic -Wextra
 
 # Linker flags
-LDFLAGS = 
+LDFLAGS = -fopenmp
 
 # Libraries to link
 LDLIBS = -lSDL2 -lm

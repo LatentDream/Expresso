@@ -3,6 +3,7 @@
 #include <immintrin.h>
 #include "matrix.h"
 #include "vector.h"
+#include <omp.h>
 
 // Create Matrix Functions ======================================
 
@@ -107,6 +108,7 @@ void mat4_print(mat4_t matrix) {
 
 mat4_t mat4_mult(mat4_t a, mat4_t b) {
     mat4_t result = {0};
+    #pragma omp parallel for
     for (int row = 0; row < 4; row++) {
         for (int col = 0; col < 4; col++) {
             float sum = 0.0f;
@@ -119,48 +121,17 @@ mat4_t mat4_mult(mat4_t a, mat4_t b) {
     return result;
 }
 
-
-mat4_t expimental__mat4_mult_fast(mat4_t a, mat4_t b) {
-    mat4_t result = {0};
-
-    for (int row = 0; row < 4; row++) {
-        for (int col = 0; col < 4; col++) {
-            __m128 sum = _mm_set1_ps(0.0f);
-            for (int i = 0; i < 4; i++) {
-                __m128 a_row = _mm_loadu_ps(&a.data[row * 4 + i]); // Load row of 'a'
-                __m128 b_col = _mm_set1_ps(b.data[i * 4 + col]);   // Broadcast element of 'b' column
-                sum = _mm_add_ps(sum, _mm_mul_ps(a_row, b_col));   // Multiply and add
-            }
-            _mm_storeu_ps(&result.data[row * 4 + col], sum);       // Store result in 'result'
-        }
-    }
-    return result;
-}
-
 // Matrix Vector Functions ======================================
 
 vec4_t mat4_mult_vec4(mat4_t m, vec4_t v) {
     vec4_t result = {0};
+    #pragma omp parallel for
     for (int row = 0; row < 4; row++) {
         float sum = 0.0f;
         for (int i = 0; i < 4; i++) {
             sum += m.data[row * 4 + i] * v.data[i];
         }
         result.data[row] = sum;
-    }
-    return result;
-}
-
-vec4_t expimental__mat4_mult_vec4_fast(mat4_t m, vec4_t v) {
-    vec4_t result = {0};
-    for (int row = 0; row < 4; row++) {
-        __m128 sum = _mm_set1_ps(0.0f);
-        for (int i = 0; i < 4; i++) {
-            __m128 m_row = _mm_loadu_ps(&m.data[row * 4 + i]);  // Load row of 'm'
-            __m128 v_val = _mm_set1_ps(v.data[i]);              // Broadcast element of 'v'
-            sum = _mm_add_ps(sum, _mm_mul_ps(m_row, v_val));    // Multiply and add
-        }
-        _mm_storeu_ps(&result.data[row], sum);                  // Store result in 'result'
     }
     return result;
 }
