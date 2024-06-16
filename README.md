@@ -18,28 +18,65 @@ make release=1
 
 ---
 
-# Ressources
+# Dev Log & Ressources
 
-- [Note from Parallel Programming - Carnegie Mellon University](https://github.com/LatentDream/Expresso/tree/carnegie-parallel-course)
-- Started the implementation by following [Pikuma's course on 3D Computer Graphics](https://pikuma.com/courses).
+#### Logs:
+In a non-chronological order, here are the logs of the development. This is what I want to explore and learn. Keep in mind that the project is still in progress and a learning exercise.
+- [x] Drawing to the screen
+- [x] Basic 3D asset
+- [x] Rendering Loop
+    - [x] CPU rasterization
+    - [x] Backface culling
+    - [x] Frustum clipping 
+    - [ ] Subpixel rasterization
+    - [ ] GPU rasterization 
+	- (Not sure if I look into implementing it to learn some stuff or swtich to OpenGL, Vulkan, DirectX, (or WebGL || WebGPU) ?)
+- [ ] Animation
+    - [ ] TODO: Research
+- [ ] Collision Detection
+    - [ ] TODO: Research
+- [ ] Physics
+    - [ ] TODO: Research
+- [ ] Game Loop
+    - [ ] TODO: Research
+- [ ] Audio
+- [ ] Game Menu / Static UI
+- [ ] Lighting
+    - [x] Basic Lightnight
+    - [ ] Advanced shadding
+	- Ditchering to achieve shading (could be a cool background with retro look)
+	- Gouraud shading
+	- [Phong Model](https://graphics.stanford.edu/courses/cs348b-07/lectures/reflection_ii/reflection_ii.pdf)
+- [x] Texture
+- [ ] _current focus_ Learning parallel & low-level optimization. Currently following / reading:
+    - On branch _cargenie-parallel-course_: [Note from Parallel Programming - Carnegie Mellon University](https://github.com/LatentDream/Expresso/tree/carnegie-parallel-course)
+    - Game Engine Architecture Book
+- [ ] Camera
+    - [x] Basic FPS camera
+    - [x] Basic Look-at camera
+    - [ ] Follow camera
+    - [ ] Well done and "real time" input
+- [ ] Math sutffs:
+    - [ ] Integrate fix math [libfixmatrix](https://github.com/PetteriAimonen/libfixmatrix)
+    - [ ] Quaternion for rotation
+    - [ ] Random number generator
+- [ ] Debugging
+    - Logging
+    - Tracing
+- [ ] Networking (0 planned, but interested to learn how it fit in the engine)
+
+#### Ressources used:
+- [Pikuma's course on 3D Computer Graphics](https://pikuma.com/courses).
+- [Game Engine Architecture](https://www.gameenginebook.com/)
 - [Perspective-Correct Interpolation](https://s3.amazonaws.com/thinkific/file_uploads/167815/attachments/c06/b72/f58/KokLimLow-PerspectiveCorrectInterpolation.pdf)
-- [upng](https://github.com/elanthis/upng)
-- [SDL2](https://www.libsdl.org/)
 - [Parallel Rasterization](https://www.cs.drexel.edu/~deb39/Classes/Papers/comp175-06-pineda.pdf)
 - [fgiesen blog](https://fgiesen.wordpress.com/2013/02/08/triangle-rasterization-in-practice/)
 
-**Next steps**:
-- Shading options:
-    - Ditchering to achieve shading (could be a cool background)
-    - Gouraud shading
-    - [Phong Model](https://graphics.stanford.edu/courses/cs348b-07/lectures/reflection_ii/reflection_ii.pdf)
-- Subpixel rasterization
-- Move from SDL to Raylib
-- Performance optimization
-- A memory check with Valgrid 
-- GPU acceleration (OpenGL, Vulkan, DirectX, WebGL || WebGPU)
-- Explore fix math: [libfixmatrix](https://github.com/PetteriAimonen/libfixmatrix)
+#### Libraries:
+- [upng](https://github.com/elanthis/upng)
+- [SDL2](https://www.libsdl.org/)
 
+#### Ressources to check next:
 **To Check**:
 - [Foundations of Game Engine Development](https://foundationsofgameenginedev.com/) 
 - [Graphics Programming Black Book](https://www.drdobbs.com/parallel/graphics-programming-black-book/184404919)
@@ -57,6 +94,7 @@ make release=1
 - [Fedor Pikus's talks](https://www.youtube.com/watch?v=g-WPhYREFjk)
 - [Cache Effect](https://igoro.com/archive/gallery-of-processor-cache-effects/)
 - Perf Profiler, check orbit
+- Valgring
 
 ---
 
