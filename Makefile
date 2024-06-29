@@ -53,10 +53,10 @@ CFLAGS = -std=c11
 WARNINGS = -Wall -Wpedantic -Wextra
 
 # Linker flags
-LDFLAGS = -fopenmp
+LDFLAGS = -fopenmp -Linclude
 
 # Libraries to link
-LDLIBS = -lSDL2 -lm
+LDLIBS = -lSDL2 -lm -lquattro
 
 # Target OS detection
 ifeq ($(OS),Windows_NT) # OS is a preexisting environment variable on Windows
