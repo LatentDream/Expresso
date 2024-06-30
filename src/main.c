@@ -54,16 +54,16 @@ void setup(void) {
 
     initialize_frustum_planes(fovy, fovx, near, far);
 
-    char* filename = "./assets/f22";
+    char* filename = "./assets/planes/f22";
     load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){0, -1.3, +5}, (vec3_t){0, -PI/2, 0});
 
-    filename = "./assets/f117";
+    filename = "./assets/planes/f117";
     load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
 
-    filename = "./assets/efa";
+    filename = "./assets/planes/efa";
     load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){-2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
 
-    filename = "./assets/runway";
+    filename = "./assets/planes/runway";
     load_mesh(filename, (vec3_t){1, 0, 1}, (vec3_t){0, -1.5, +23}, (vec3_t){0, 0, 0});
 
     uint64_t result = add_from_rust(20, 22);

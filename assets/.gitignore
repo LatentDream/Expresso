@@ -1,3 +1,4 @@
-*.obj
-*.png
-*.bmp
+# *.obj
+# *.png
+# *.bmp
+planes_voxels
