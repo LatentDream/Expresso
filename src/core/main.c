@@ -54,13 +54,14 @@ void setup(void) {
 
     initialize_frustum_planes(fovy, fovx, near, far);
 
+    // TODO: Move this into the Entity System
     char* filename = "./assets/planes/f22";
     load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){0, -1.3, +5}, (vec3_t){0, -PI/2, 0});
 
     filename = "./assets/planes/f117";
     load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
 
-    filename = "./assets/planes/efa";
+    filename = "./assets/Package/efa";
     load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){-2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
 
     filename = "./assets/planes/runway";
