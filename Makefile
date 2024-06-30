@@ -43,6 +43,7 @@ SRCS := $(sort $(shell find $(SRC_DIR) -name '*.c'))
 # Includes
 INCLUDE_DIR = include
 INCLUDES := -I$(INCLUDE_DIR)
+INCLUDES += $(shell find $(INCLUDE_DIR) -type d | sed 's/^/-I/g')
 
 # C preprocessor settings
 CPPFLAGS = $(INCLUDES) -MMD -MP -fopenmp
@@ -53,7 +54,7 @@ CFLAGS = -std=c11
 WARNINGS = -Wall -Wpedantic -Wextra
 
 # Linker flags
-LDFLAGS = -fopenmp -Linclude
+LDFLAGS = -fopenmp -Lexternal
 
 # Libraries to link
 LDLIBS = -lSDL2 -lm -lquattro

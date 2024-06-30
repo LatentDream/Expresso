@@ -8,12 +8,12 @@ prog-release := "./bin/linux/release/Expresso"
 
 build:
     cd external/libquattro; cargo build --release
-    cp -fi external/libquattro/target/release/libquattro.so include/libquattro.so
+    cp -fi external/libquattro/target/release/libquattro.so external/libquattro.so
     make release=1
 
 build-debug:
     cd external/libquattro; cargo build
-    cp -fi external/libquattro/target/debug/libquattro.so include/libquattro.so
+    cp -fi external/libquattro/target/debug/libquattro.so external/libquattro.so
     make
 
 # Clean ========================================================================
