@@ -16,7 +16,7 @@ typedef struct {
     vec3_t translation;// Translation with xyz value  |
 } mesh_t;
 
-void load_mesh(char* filename, vec3_t scaling, vec3_t translation, vec3_t rotation);
+void load_mesh(char* obj_filename, char* png_filename, vec3_t scaling, vec3_t translation, vec3_t rotation);
 void load_mesh_and_data_from_obj(mesh_t* mesh, char* filename);
 void load_mesh_png_texture(mesh_t* mesh, char* filename);
 int get_num_meshes();

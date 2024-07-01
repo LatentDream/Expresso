@@ -10,20 +10,13 @@
 static mesh_t meshes[MAX_MESHES];
 static int num_meshes = 0;
 
-void load_mesh(char* filename, vec3_t scaling, vec3_t translation, vec3_t rotation) {
-    printf("Loading %s\n", filename);
-    char* obj_filename = malloc(strlen(filename) + 5);
-    char* png_filename = malloc(strlen(filename) + 5);
-    sprintf(obj_filename, "%s.obj", filename);
-    sprintf(png_filename, "%s.png", filename);
+void load_mesh(char* obj_filename, char* png_filename, vec3_t scaling, vec3_t translation, vec3_t rotation) {
     load_mesh_and_data_from_obj(&meshes[num_meshes], obj_filename);
     load_mesh_png_texture(&meshes[num_meshes], png_filename);
     meshes[num_meshes].scale = scaling;
     meshes[num_meshes].translation = translation;
     meshes[num_meshes].rotation = rotation;
     num_meshes++;
-    free(obj_filename);
-    free(png_filename);
 }
 
 void free_meshes() {

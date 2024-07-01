@@ -15,6 +15,7 @@
 #include "mesh.h"
 #include "triangle.h"
 #include "quattro.h"
+#include "entity.h"
 
 // Event Loop
 bool is_running = false;
@@ -63,18 +64,13 @@ void setup(void) {
 
     initialize_frustum_planes(fovy, fovx, near, far);
 
-    // TODO: Move this into the Entity System
-    char* filename = "./assets/planes/f22";
-    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){0, -1.3, +5}, (vec3_t){0, -PI/2, 0});
+    // Entities
+    load_entity("./assets/planes/f22", (vec3_t){1, 1, 1}, (vec3_t){0, -1.3, +5}, (vec3_t){0, -PI/2, 0});
+    load_entity("./assets/planes/f117", (vec3_t){1, 1, 1}, (vec3_t){2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
+    load_entity("./assets/planes/efa", (vec3_t){1, 1, 1}, (vec3_t){-2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
 
-    filename = "./assets/planes/f117";
-    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
-
-    filename = "./assets/planes/efa";
-    load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){-2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
-
-    filename = "./assets/planes/runway";
-    load_mesh(filename, (vec3_t){1, 0, 1}, (vec3_t){0, -1.5, +23}, (vec3_t){0, 0, 0});
+    // Props
+    load_prop("./assets/planes/runway", (vec3_t){1, 0, 1}, (vec3_t){0, -1.5, +23}, (vec3_t){0, 0, 0});
 
     uint64_t result = add_from_rust(20, 22);
     printf("Result: %ld\n", result);
