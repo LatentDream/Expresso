@@ -39,6 +39,7 @@ mat4_t perspective;
 // Control
 float previous_mouse_x = 0.0;
 float previous_mouse_y = 0.0;
+bool use_mouse_motion = false;
 const int MOUSE_SENSITIVITY = 40;  // The more, the less sensitive
 
 // Setup Function ==============================================================
@@ -137,11 +138,15 @@ void process_input(void) {
 
                 // Camera movement ----------------
                 if (event.key.keysym.sym == SDLK_a) {
-                    // TODO: Move the camera to the side
+                    vec3_t mov = { .x = 1, .y = 0, .z = 0 };
+                    update_camera_forward_velocity(vec3_mult(mov, 5.0 * delta_time));
+                    update_camera_position(vec3_sub(get_camera_position(), get_camera_forward_velocity()));
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_d) {
-                    // TODO: Move the camera to the side
+                    vec3_t mov = { .x = 1, .y = 0, .z = 0 };
+                    update_camera_forward_velocity(vec3_mult(mov, 5.0 * delta_time));
+                    update_camera_position(vec3_add(get_camera_position(), get_camera_forward_velocity()));
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_w) {
@@ -156,16 +161,22 @@ void process_input(void) {
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
+                use_mouse_motion = true;
+                break;
+            case SDL_MOUSEBUTTONUP:
+                use_mouse_motion = false;
                 break;
             case SDL_MOUSEMOTION:
-                SDL_MouseMotionEvent * mov = (SDL_MouseMotionEvent*)&event;
-                const float x_delta = (previous_mouse_x - (float)mov->xrel) / MOUSE_SENSITIVITY;
-                const float y_delta = (previous_mouse_y - (float)mov->yrel) / MOUSE_SENSITIVITY;
-                previous_mouse_x = (float)mov->xrel;
-                previous_mouse_y = (float)mov->yrel;
-                if (fabs(x_delta) <= 10 && fabs(y_delta) <= 10) {
-                    rotate_camera_yaw(x_delta * delta_time);
-                    rotate_camera_pitch(y_delta  * delta_time);
+                if (use_mouse_motion) {
+                    SDL_MouseMotionEvent * mov = (SDL_MouseMotionEvent*)&event;
+                    const float x_delta = (previous_mouse_x - (float)mov->xrel) / MOUSE_SENSITIVITY;
+                    const float y_delta = (previous_mouse_y - (float)mov->yrel) / MOUSE_SENSITIVITY;
+                    previous_mouse_x = (float)mov->xrel;
+                    previous_mouse_y = (float)mov->yrel;
+                    if (fabs(x_delta) <= 10 && fabs(y_delta) <= 10) {
+                        rotate_camera_yaw(x_delta * delta_time);
+                        rotate_camera_pitch(y_delta  * delta_time);
+                    }
                 }
                 break;
         }
