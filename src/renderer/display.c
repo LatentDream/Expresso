@@ -69,14 +69,9 @@ bool initialize_window(bool is_fullscreen, bool is_retro_look) {
         fprintf(stderr, "Error creating SDL renderer.\n");
         return false;
     }
-
     if (is_fullscreen) {
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
     }
-
-    // Mouse cursor hidden
-    SDL_SetWindowGrab(window, SDL_TRUE);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
 
     // Allocate the required memory in bytes to hold the color buffer
     color_buffer = (color_t*) malloc(sizeof(color_t) * window_width * window_height);
@@ -90,6 +85,19 @@ bool initialize_window(bool is_fullscreen, bool is_retro_look) {
         window_width,
         window_height
     );
+
+
+    // Enable relative mouse mode (trap mouse)
+    // BUG: Relative mouse motion even if the mouse is at the edge of the window | WSL problem ??
+    int success = SDL_SetRelativeMouseMode(SDL_TRUE);
+    if (success == -1) {
+        printf("[WARNING] - NOT SUPPORTED: Continuous relative mouse motion even if the mouse is at the edge of the window.");
+    }
+    SDL_ShowCursor(SDL_DISABLE);
+    SDL_Surface *cursorSurface = SDL_CreateRGBSurface(0, 1, 1, 32, 0, 0, 0, 0);
+    SDL_Cursor *cursor = SDL_CreateColorCursor(cursorSurface, 0, 0);
+    SDL_SetCursor(cursor);
+    SDL_FreeSurface(cursorSurface);
 
     return true;
 }
