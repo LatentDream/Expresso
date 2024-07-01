@@ -1,4 +1,6 @@
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_stdinc.h>
+#include <SDL2/SDL_video.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -151,9 +153,19 @@ void process_input(void) {
             case SDL_MOUSEBUTTONDOWN:
                 break;
             case SDL_MOUSEMOTION:
-                // FIX: Lower the sensitivity
-                rotate_camera_yaw(event.motion.xrel * delta_time);
-                rotate_camera_pitch(event.motion.yrel * delta_time);
+                // FIX: Sensivity is too high when full screen
+                rotate_camera_yaw(event.motion.xrel * delta_time * 0.5);
+                rotate_camera_pitch(event.motion.yrel * delta_time * 0.5);
+                break;
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_ENTER) {
+                    // TODO: Grab the input when mouse enter + a key is pressed to release the mouse
+                    // DOC: https://wiki.libsdl.org/SDL2/SDL_CaptureMouse
+                    printf("Mouse enter. Grabbing it\n");
+                    int is_supported = SDL_CaptureMouse(SDL_TRUE);
+                    printf("Is supported if -1: %d\n", is_supported);
+                }
+                break;
         }
     }
 }
