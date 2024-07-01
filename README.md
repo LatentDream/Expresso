@@ -67,6 +67,7 @@ In a non-chronological order, here are the logs of the development. This is what
     - [x] Basic Look-at camera
     - [ ] Follow camera
     - [ ] Well done and "real time" input
+    - [ ] Mouse input
 - [ ] Math sutffs:
     - [ ] Integrate fix math [libfixmatrix](https://github.com/PetteriAimonen/libfixmatrix)
     - [ ] Quaternion for rotation

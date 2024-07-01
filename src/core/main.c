@@ -130,27 +130,19 @@ void process_input(void) {
 
                 // Camera movement ----------------
                 if (event.key.keysym.sym == SDLK_a) {
-                    rotate_camera_yaw(1.0 * delta_time);
+                    // TODO: Move the camera to the side
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_d) {
-                    rotate_camera_yaw(-1.0 * delta_time);
+                    // TODO: Move the camera to the side
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_w) {
-                    rotate_camera_pitch(+3.0 * delta_time);
-                    break;
-                }
-                if (event.key.keysym.sym == SDLK_s) {
-                    rotate_camera_pitch(-3.0 * delta_time);
-                    break;
-                }
-                if (event.key.keysym.sym == SDLK_e) {
                     update_camera_forward_velocity(vec3_mult(get_camera_direction(), 5.0 * delta_time));
                     update_camera_position(vec3_add(get_camera_position(), get_camera_forward_velocity()));
                     break;
                 }
-                if (event.key.keysym.sym == SDLK_q) {
+                if (event.key.keysym.sym == SDLK_s) {
                     update_camera_forward_velocity(vec3_mult(get_camera_direction(), 5.0 * delta_time));
                     update_camera_position(vec3_sub(get_camera_position(), get_camera_forward_velocity()));
                     break;
@@ -159,10 +151,9 @@ void process_input(void) {
             case SDL_MOUSEBUTTONDOWN:
                 break;
             case SDL_MOUSEMOTION:
-                int xrel = event.motion.xrel;
-                int yrel = event.motion.yrel;
-                printf("Mouse moved by %d %d\n", xrel, yrel);
-
+                // FIX: Lower the sensitivity
+                rotate_camera_yaw(event.motion.xrel * delta_time);
+                rotate_camera_pitch(event.motion.yrel * delta_time);
         }
     }
 }
@@ -390,7 +381,7 @@ void render(void) {
 int main(int argc, char *argv[]) {
 
     // Create SDL window
-    is_running = initialize_window(true, false);
+    is_running = initialize_window(false, false);
 
     setup();
 
