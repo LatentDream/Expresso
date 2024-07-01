@@ -1,3 +1,4 @@
+#include <SDL2/SDL_events.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <stdbool.h>
@@ -45,7 +46,7 @@ void setup(void) {
 
     // Init the perspective matrix
     float aspecty = (float)get_window_height() / (float)get_window_width();
-    float aspectx = (float)get_window_width() / (float)get_window_height();
+    float aspectx = (float)get_window_width()  / (float)get_window_height();
     float fovy = 1.047194;  // 60 degrees in radians
     float fovx = 2 * atan(aspectx * tan(fovy / 2));
     float near = 0.1;
@@ -155,6 +156,13 @@ void process_input(void) {
                     break;
                 }
                 break;
+            case SDL_MOUSEBUTTONDOWN:
+                break;
+            case SDL_MOUSEMOTION:
+                int xrel = event.motion.xrel;
+                int yrel = event.motion.yrel;
+                printf("Mouse moved by %d %d\n", xrel, yrel);
+
         }
     }
 }
@@ -382,7 +390,7 @@ void render(void) {
 int main(int argc, char *argv[]) {
 
     // Create SDL window
-    is_running = initialize_window();
+    is_running = initialize_window(true, false);
 
     setup();
 

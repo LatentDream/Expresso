@@ -27,7 +27,7 @@ static int window_height = 400;
 
 
 // initialize display ---------------------------------------------------------
-bool initialize_window(void) {
+bool initialize_window(bool is_fullscreen, bool is_retro_look) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr, "Error initializing SDL.\n");
         return false;
@@ -39,11 +39,15 @@ bool initialize_window(void) {
     int full_window_width = display_mode.w / 2;
     int full_window_height = display_mode.h / 2;
 
-    window_width = full_window_width;
-    window_height = full_window_height;
-    // window_width = full_window_width / 3;
-    // window_height = full_window_height / 3;
-
+    
+    if (is_fullscreen) {
+        window_width = full_window_width;
+        window_height = full_window_height;
+    }
+    if (is_retro_look) {
+        window_width = full_window_width / 3;
+        window_height = full_window_height / 3;
+    }
 
     // Create SDL window
     window = SDL_CreateWindow(
@@ -66,7 +70,9 @@ bool initialize_window(void) {
         return false;
     }
 
-    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    if (is_fullscreen) {
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    }
 
     // Allocate the required memory in bytes to hold the color buffer
     color_buffer = (color_t*) malloc(sizeof(color_t) * window_width * window_height);

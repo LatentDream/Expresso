@@ -23,7 +23,7 @@ enum light_mode { LIGHT_ON, LIGHT_OFF };
 typedef uint32_t color_t;
 
 // Function ////////////////////////////////////////////////
-bool initialize_window(void);
+bool initialize_window(bool is_fullscreen, bool is_retro_look);
 void destroy_window(void);
 
 // Drawing ////////////////////////////////////////////////
