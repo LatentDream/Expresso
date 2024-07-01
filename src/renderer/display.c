@@ -74,6 +74,10 @@ bool initialize_window(bool is_fullscreen, bool is_retro_look) {
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
     }
 
+    // Mouse cursor hidden
+    SDL_SetWindowGrab(window, SDL_TRUE);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+
     // Allocate the required memory in bytes to hold the color buffer
     color_buffer = (color_t*) malloc(sizeof(color_t) * window_width * window_height);
     z_buffer = (float*) malloc(sizeof(float) * window_width * window_height);

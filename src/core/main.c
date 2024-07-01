@@ -36,6 +36,11 @@ mat4_t perspective;
 
 #define PI 3.14159265
 
+// Control
+float previous_mouse_x = 0.0;
+float previous_mouse_y = 0.0;
+const int MOUSE_SENSITIVITY = 40;  // The more, the less sensitive
+
 // Setup Function ==============================================================
 
 void setup(void) {
@@ -64,7 +69,7 @@ void setup(void) {
     filename = "./assets/planes/f117";
     load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
 
-    filename = "./assets/Package/efa";
+    filename = "./assets/planes/efa";
     load_mesh(filename, (vec3_t){1, 1, 1}, (vec3_t){-2, -1.3, +9}, (vec3_t){0, -PI/2, 0});
 
     filename = "./assets/planes/runway";
@@ -153,17 +158,14 @@ void process_input(void) {
             case SDL_MOUSEBUTTONDOWN:
                 break;
             case SDL_MOUSEMOTION:
-                // FIX: Sensivity is too high when full screen
-                rotate_camera_yaw(event.motion.xrel * delta_time * 0.5);
-                rotate_camera_pitch(event.motion.yrel * delta_time * 0.5);
-                break;
-            case SDL_WINDOWEVENT:
-                if (event.window.event == SDL_WINDOWEVENT_ENTER) {
-                    // TODO: Grab the input when mouse enter + a key is pressed to release the mouse
-                    // DOC: https://wiki.libsdl.org/SDL2/SDL_CaptureMouse
-                    printf("Mouse enter. Grabbing it\n");
-                    int is_supported = SDL_CaptureMouse(SDL_TRUE);
-                    printf("Is supported if -1: %d\n", is_supported);
+                SDL_MouseMotionEvent * mov = (SDL_MouseMotionEvent*)&event;
+                const float x_delta = (previous_mouse_x - (float)mov->xrel) / MOUSE_SENSITIVITY;
+                const float y_delta = (previous_mouse_y - (float)mov->yrel) / MOUSE_SENSITIVITY;
+                previous_mouse_x = (float)mov->xrel;
+                previous_mouse_y = (float)mov->yrel;
+                if (fabs(x_delta) <= 10 && fabs(y_delta) <= 10) {
+                    rotate_camera_yaw(x_delta * delta_time);
+                    rotate_camera_pitch(y_delta  * delta_time);
                 }
                 break;
         }
