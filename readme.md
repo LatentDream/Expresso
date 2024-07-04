@@ -736,7 +736,114 @@ Each worker has a queue of tasks to execute, (sorted in a divide-and-conquer fas
 ---
 
 # Lecture 7: Performance Optimization II: Locality, Communication, and Contention
+Message passing, async vs blocking sends/receives, pipelining, techniques to increase artithmetric intensity, avoiding contention
 
+## Message Passing
+
+Let's think about expressing a parallel grid solver with comminication between the grid points.
+- Each thread has its own address space
+    - No shared address space abstraction
+- Threads communcate and synchronine by sending/receving messages
+- Each thread operates in its own address space
+
+Data replication is new requied to crrectly execute the program
+Example:
+> After thread 1 & 3 are down, they sent some data to thread 2 which required them. 
+
+<p align="center">
+	<img width="800" src="./ressources/L7_1.PNG">
+<p align="center">
+
+But it's easy to have blocking action. And we need to make sure that the code doesn't become synchronize by waiting for acknoledgement.
+
+## Non-blocking asynchronous send/recv
+- `send()`: call returns immediately
+    - Buffer provided to send() cannot be modified by calling htread since message processing occurs concurrently with thread execution
+    - Calling thread can perform other work while waiting for message to be sent
+- `recv()`: posts intent to receive in the future, returns immediately
+    - Use `checksend()` `checkrecv()` to determine actual status of message to be received
+
+**Review**:
+- Latency: The amount of time needed for an operation to complete. _time for the trip_
+- Bandwidth: The rate at which operations are performed. _instruction / time_
+
+**A simple model of non-pipelined communication**:
+
+`T(n) = T_0 + n / B`
+
+Where:
+    - `T(n)`: Time to send n bytes
+    - `T_0`: Startup latency (time for the first bit to arrive)
+    - `n`: Number of bytes
+    - `B`: Transfer rate
+
+**A more general model of communication**:
+
+Exmaple: sending a n-bit message
+
+`Total_communication = overhead + occupancy + network_delay`
+
+Where
+    - `overhead`: Time spent in setting up the communication
+    - `occupancy`: Time for data to pass through slowest component of system
+    - `network_delay`: Everything else
+
+<p align="center">
+	<img width="800" src="./ressources/L7_2.PNG">
+<p align="center">
+
+Here we are also as fast as the slowest link of the system
+
+## Cost
+The effect operations have on program execution time.
+
+**Think of a parallel system as an extended memory hierarchy** since it apply to communication at any scale
+
+- Processor
+- Register
+- L1 Cache
+- L2 Cache
+- L2 from another core
+- L3 Cache
+- Local memory
+- Remote memory (1 network hop)
+- Remote memory (N network hop)
+
+**Inherent communication cost**: Communication cost that cannot be avoided
+- BUT: Good assignment decision can reduce inherent communication
+
+Communication to computation ratio:
+- "Arithmetic intensity": (communication / computation)^(-1)
+- High arithmetic intensity: We want that since it mean we do a lot of work 
+
+**Artifactual communication**: Communication cost due to the machine
+- Ex: the machine is done to only send 16 bytes at a time, but we only need 4 bytes. So we need to send 16 bytes
+- Loading 4 bytes from memory, a full cache line is loaded
+
+_Review_: 
+- `Cold miss`: first time loading something
+    - Unavoidable in a sequential program
+- `Capacity miss`: cache is full (working set is too big for the cache)
+    - Larger cache can help
+- `Conflict miss`: two things are trying to access the same cache line (but the CPU can't load those two at the same place in a direct mapped cache)
+    - Change the access pattern, change cache associativity can increase
+- `Communication miss` **NEW**: due to inherent or artifactual communication in parallel system
+    - ~Unavoidable in a parallel program
+
+## Reducing Communication
+- Improving temporal locality 
+<p align="center">
+    <img width="800" src="./ressources/L7_3.PNG">
+<p align="center">
+
+- Improve arithmetic intensuty by sharing data
+    - Exploit sharing: Co-locate tasks that operate on the same data
+        - Reduces inhenrent communication
+    - Example: CUDA thread block
+
+Contention
+- A resource can peform operations at a given throughput (number of transactions per unit time)
+- Contention occurs when many requests to a resource are made within a small winodw of time (the resource is a "hot spot")
 
 
 
