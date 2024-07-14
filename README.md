@@ -25,7 +25,6 @@ make release=1
 
 # Dev Log & Ressources
 
-- Currently learning more about low level parallel optimization, see branch: [Note from Parallel Programming - Carnegie Mellon University](https://github.com/LatentDream/Expresso/tree/carnegie-parallel-course)
 - My notes on rendering pipeline from Pikuma's course: [notes](./notes/rendering_pipeline.md)
 - My notes on parallel programming from Carnegie Mellon University: [notes](./notes/parallel_computer_architecture_and_programming.md)
 - For the next learning topic, see branch: [dev](https://github.com/LatentDream/Expresso/tree/dev)
