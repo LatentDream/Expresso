@@ -14,7 +14,6 @@
 #include "vector.h"
 #include "mesh.h"
 #include "triangle.h"
-#include "quattro.h"
 #include "entity.h"
 
 // Event Loop
@@ -71,9 +70,6 @@ void setup(void) {
 
     // Props
     load_prop("./assets/planes/runway", (vec3_t){1, 0, 1}, (vec3_t){0, -1.5, +23}, (vec3_t){0, 0, 0});
-
-    uint64_t result = add_from_rust(20, 22);
-    printf("Result: %ld\n", result);
 
 }
 

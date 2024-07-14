@@ -14,14 +14,8 @@ Old school 3D engine from scratch in C.
 sudo apt install build-essential
 sudo apt install libsdl2-dev
 
-# Install the Rust toolchain
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Build the cargo bin & C project
-just build
-
-# Expose the rust dll to the C project
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/project/path/external/
+# Build the project
+make release=1
 
 # Run the project
 ./bin/linux/release/expresso
