@@ -398,7 +398,7 @@ void render(void) {
 int main(int argc, char *argv[]) {
 
     // Create SDL window
-    is_running = initialize_window(false, false);
+    is_running = initialize_window(true, false);
 
     setup();
 
