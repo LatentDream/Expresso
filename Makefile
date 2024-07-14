@@ -1,3 +1,4 @@
+###############################################################################
 # MIT License
 #
 # Copyright (c) 2020 Misha Krieger-Raynauld
@@ -56,7 +57,7 @@ WARNINGS = -Wall -Wpedantic -Wextra
 LDFLAGS = -fopenmp -Lexternal
 
 # Libraries to link
-LDLIBS = -lSDL2 -lm
+LDLIBS = -lSDL2 -lm -lquattro
 
 # Target OS detection
 ifeq ($(OS),Windows_NT) # OS is a preexisting environment variable on Windows
